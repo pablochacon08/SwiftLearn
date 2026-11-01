@@ -1,0 +1,139 @@
+ANÁLISIS LÉXICO - SwiftLearn
+Archivo: algoritmos/algoritmo2.swift
+Desarrollador: DannaAyala
+Fecha: 01-11-2026 15:44
+
+TOKENS RECONOCIDOS (105)
+Línea 7    VAR          var
+Línea 7    ID           nombre
+Línea 7    COLON        :
+Línea 7    ID           String
+Línea 7    STRING       "Danna"
+Línea 8    VAR          var
+Línea 8    ID           edades
+Línea 8    COLON        :
+Línea 8    LBRACKET     [
+Línea 8    ID           String
+Línea 8    COLON        :
+Línea 8    ID           Int
+Línea 8    RBRACKET     ]
+Línea 8    LBRACKET     [
+Línea 8    STRING       "Danna"
+Línea 8    COLON        :
+Línea 8    INT          21
+Línea 8    STRING       "Pablo"
+Línea 8    COLON        :
+Línea 8    INT          17
+Línea 8    STRING       "Sofia"
+Línea 8    COLON        :
+Línea 8    INT          22
+Línea 8    RBRACKET     ]
+Línea 9    VAR          var
+Línea 9    ID           contador
+Línea 9    COLON        :
+Línea 9    ID           Int
+Línea 9    INT          0
+Línea 10   VAR          var
+Línea 10   ID           limite
+Línea 10   COLON        :
+Línea 10   ID           Int
+Línea 10   INT          10
+Línea 11   VAR          var
+Línea 11   ID           edadPablo
+Línea 11   COLON        :
+Línea 11   ID           Int
+Línea 11   INT          17
+Línea 13   FUNC         func
+Línea 13   ID           saludar
+Línea 13   ID           nombre
+Línea 13   COLON        :
+Línea 13   ID           String
+Línea 13   LBRACE       {
+Línea 14   ID           print
+Línea 14   STRING       "Hola"
+Línea 14   ID           nombre
+Línea 15   RBRACE       }
+Línea 17   ID           saludar
+Línea 17   ID           nombre
+Línea 17   COLON        :
+Línea 17   ID           nombre
+Línea 19   WHILE        while
+Línea 19   ID           contador
+Línea 19   LE           <=
+Línea 19   ID           limite
+Línea 19   LBRACE       {
+Línea 20   ID           contador
+Línea 20   PLUS         +
+Línea 20   INT          1
+Línea 21   IF           if
+Línea 21   ID           contador
+Línea 21   MOD          %
+Línea 21   INT          2
+Línea 21   EQ           ==
+Línea 21   INT          0
+Línea 21   LBRACE       {
+Línea 22   CONTINUE     continue
+Línea 23   RBRACE       }
+Línea 24   IF           if
+Línea 24   ID           contador
+Línea 24   GT           >
+Línea 24   INT          7
+Línea 24   LBRACE       {
+Línea 25   BREAK        break
+Línea 26   RBRACE       }
+Línea 27   ID           print
+Línea 27   STRING       "Número impar:"
+Línea 27   ID           contador
+Línea 28   RBRACE       }
+Línea 30   IF           if
+Línea 30   ID           edadPablo
+Línea 30   GE           >=
+Línea 30   INT          18
+Línea 30   LBRACE       {
+Línea 31   ID           print
+Línea 31   STRING       "Pablo es mayor de edad"
+Línea 32   RBRACE       }
+Línea 32   ELSE         else
+Línea 32   LBRACE       {
+Línea 33   ID           print
+Línea 33   STRING       "Pablo es menor de edad"
+Línea 34   RBRACE       }
+Línea 36   IF           if
+Línea 36   ID           nombre
+Línea 36   NE           !=
+Línea 36   STRING       "Pablo"
+Línea 36   ID           contador
+Línea 36   LT           <
+Línea 36   ID           limite
+Línea 36   LBRACE       {
+Línea 37   ID           print
+Línea 37   STRING       "El ciclo terminó antes del límite"
+Línea 38   RBRACE       }
+
+ERRORES LÉXICOS (26)
+Error léxico en la línea 7, columna 20: el carácter '=' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 8, columna 27: el carácter '=' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 8, columna 41: el carácter ',' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 8, columna 54: el carácter ',' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 9, columna 19: el carácter '=' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 10, columna 17: el carácter '=' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 11, columna 20: el carácter '=' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 13, columna 13: el carácter '(' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 13, columna 28: el carácter ')' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 14, columna 10: el carácter '(' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 14, columna 17: el carácter ',' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 14, columna 25: el carácter ')' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 17, columna 8: el carácter '(' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 17, columna 23: el carácter ')' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 20, columna 15: el carácter '=' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 27, columna 10: el carácter '(' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 27, columna 26: el carácter ',' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 27, columna 36: el carácter ')' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 31, columna 10: el carácter '(' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 31, columna 35: el carácter ')' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 33, columna 10: el carácter '(' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 33, columna 35: el carácter ')' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 36, columna 22: el carácter '&' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 36, columna 23: el carácter '&' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 37, columna 10: el carácter '(' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
+Error léxico en la línea 37, columna 46: el carácter ')' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.

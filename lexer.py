@@ -88,6 +88,59 @@ def t_ID(t):
 # Tokens: while, break, continue, cadenas de texto,
 # operadores de comparación, { }, : y comentarios
 
+# Palabras reservadas: ciclo while y control del ciclo
+reserved.update({
+    'while': 'WHILE',
+    'break': 'BREAK',
+    'continue': 'CONTINUE',
+})
+
+tokens += [
+    'STRING',    # cadenas de texto "..."
+    'EQ',        # ==
+    'NE',        # !=
+    'LE',        # <=
+    'GE',        # >=
+    'LT',        # <
+    'GT',        # >
+    'LBRACE',    # {
+    'RBRACE',    # }
+    'COLON',     # :
+]
+
+# Operadores de comparación
+# PLY ordena las reglas de texto de mayor a menor longitud,
+# por eso <= se reconoce antes que < y == antes que =
+t_EQ = r'=='
+t_NE = r'!='
+t_LE = r'<='
+t_GE = r'>='
+t_LT = r'<'
+t_GT = r'>'
+
+# Delimitadores de bloque y separador de tipo / clave-valor
+t_LBRACE = r'\{'
+t_RBRACE = r'\}'
+t_COLON = r':'
+
+
+# Cadena de texto entre comillas dobles, admite secuencias como \n o \"
+def t_STRING(t):
+    r'"([^"\\\n]|\\.)*"'
+    return t
+
+
+# Comentario de varias líneas /* ... */
+# Se descarta, pero se cuentan sus saltos de línea para no perder la numeración
+def t_COMMENT_MULTI(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
+
+
+# Comentario de una línea // ...
+# Se descarta. Al ser función, PLY lo revisa antes que t_DIVIDE
+def t_COMMENT(t):
+    r'//.*'
 # ===== Fin aporte Danna Ayala =====
 
 
@@ -175,65 +228,3 @@ if __name__ == '__main__':
         sys.exit(1)
     analizar(sys.argv[1], sys.argv[2])
     
-    
-# ===== Fin aporte Pablo Chacón =====
-
-# ===== Inicio aporte Danna Ayala =====
-# Tokens: while, break, continue, cadenas de texto,
-# operadores de comparación, { }, : y comentarios
-
-# Palabras reservadas: ciclo while y control del ciclo
-reserved.update({
-    'while': 'WHILE',
-    'break': 'BREAK',
-    'continue': 'CONTINUE',
-})
-
-tokens += [
-    'STRING',    # cadenas de texto "..."
-    'EQ',        # ==
-    'NE',        # !=
-    'LE',        # <=
-    'GE',        # >=
-    'LT',        # <
-    'GT',        # >
-    'LBRACE',    # {
-    'RBRACE',    # }
-    'COLON',     # :
-]
-
-# Operadores de comparación
-# PLY ordena las reglas de texto de mayor a menor longitud,
-# por eso <= se reconoce antes que < y == antes que =
-t_EQ = r'=='
-t_NE = r'!='
-t_LE = r'<='
-t_GE = r'>='
-t_LT = r'<'
-t_GT = r'>'
-
-# Delimitadores de bloque y separador de tipo / clave-valor
-t_LBRACE = r'\{'
-t_RBRACE = r'\}'
-t_COLON = r':'
-
-
-# Cadena de texto entre comillas dobles, admite secuencias como \n o \"
-def t_STRING(t):
-    r'"([^"\\\n]|\\.)*"'
-    return t
-
-
-# Comentario de varias líneas /* ... */
-# Se descarta, pero se cuentan sus saltos de línea para no perder la numeración
-def t_COMMENT_MULTI(t):
-    r'/\*(.|\n)*?\*/'
-    t.lexer.lineno += t.value.count('\n')
-
-
-# Comentario de una línea // ...
-# Se descarta. Al ser función, PLY lo revisa antes que t_DIVIDE
-def t_COMMENT(t):
-    r'//.*'
-
-# ===== Fin aporte Danna Ayala =====
