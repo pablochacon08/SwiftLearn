@@ -148,6 +148,53 @@ def t_COMMENT(t):
 # Tokens: let, for, in, true, false, nil,
 # operadores lógicos y de asignación, ( ), la coma y ;
 
+# Palabras reservadas: constantes, ciclos y valores especiales
+reserved.update({
+    'let': 'LET',
+    'for': 'FOR',
+    'in': 'IN',
+    'true': 'TRUE',
+    'false': 'FALSE',
+    'nil': 'NIL',
+})
+
+tokens += [
+    'LPAREN',    # (
+    'RPAREN',    # )
+    'COMMA',     # ,
+    'SEMICOLON', # ;
+    'ASSIGN',    # =
+    'PLUS_ASSIGN',   # +=
+    'MINUS_ASSIGN',  # -=
+    'TIMES_ASSIGN',  # *=
+    'DIVIDE_ASSIGN', # /=
+    'MOD_ASSIGN',    # %=
+    'AND',       # &&
+    'OR',        # ||
+    'NOT',       # !
+]
+
+# Operadores de asignación compuesta, primero los más largos
+# para que PLY no los separe como operador + y asignación =
+t_PLUS_ASSIGN = r'\+='
+t_MINUS_ASSIGN = r'-='
+t_TIMES_ASSIGN = r'\*='
+t_DIVIDE_ASSIGN = r'/='
+t_MOD_ASSIGN = r'%='
+t_ASSIGN = r'='
+
+# Operadores lógicos
+# El lexer descarta los comentarios antes de reconocer el operador /
+t_AND = r'&&'
+t_OR = r'\|\|'
+t_NOT = r'!'
+
+# Separadores
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
+t_COMMA = r','
+t_SEMICOLON = r';'
+
 # ===== Fin aporte Jack Vera =====
 
 

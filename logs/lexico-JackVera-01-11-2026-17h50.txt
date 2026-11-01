@@ -1,0 +1,80 @@
+ANÁLISIS LÉXICO - SwiftLearn
+Archivo: algoritmos/algoritmo3.swift
+Desarrollador: JackVera
+Fecha: 01-11-2026 17:50
+
+TOKENS RECONOCIDOS (71)
+Línea 5    LET          let
+Línea 5    ID           numeros
+Línea 5    ASSIGN       =
+Línea 5    LBRACKET     [
+Línea 5    INT          2
+Línea 5    COMMA        ,
+Línea 5    INT          4
+Línea 5    COMMA        ,
+Línea 5    INT          6
+Línea 5    COMMA        ,
+Línea 5    INT          8
+Línea 5    RBRACKET     ]
+Línea 6    VAR          var
+Línea 6    ID           suma
+Línea 6    ASSIGN       =
+Línea 6    INT          0
+Línea 10   FOR          for
+Línea 10   ID           numero
+Línea 10   IN           in
+Línea 10   ID           numeros
+Línea 10   LBRACE       {
+Línea 11   IF           if
+Línea 11   ID           numero
+Línea 11   MOD          %
+Línea 11   INT          2
+Línea 11   EQ           ==
+Línea 11   INT          0
+Línea 11   LBRACE       {
+Línea 12   ID           suma
+Línea 12   PLUS_ASSIGN  +=
+Línea 12   ID           numero
+Línea 12   SEMICOLON    ;
+Línea 13   RBRACE       }
+Línea 14   RBRACE       }
+Línea 17   IF           if
+Línea 17   ID           suma
+Línea 17   GT           >
+Línea 17   INT          10
+Línea 17   LBRACE       {
+Línea 18   ID           print
+Línea 18   LPAREN       (
+Línea 18   STRING       "La suma es mayor que diez:"
+Línea 18   COMMA        ,
+Línea 18   ID           suma
+Línea 18   RPAREN       )
+Línea 19   RBRACE       }
+Línea 19   ELSE         else
+Línea 19   LBRACE       {
+Línea 20   ID           print
+Línea 20   LPAREN       (
+Línea 20   STRING       "La suma no es mayor que diez:"
+Línea 20   COMMA        ,
+Línea 20   ID           suma
+Línea 20   RPAREN       )
+Línea 21   RBRACE       }
+Línea 24   VAR          var
+Línea 24   ID           resultado
+Línea 24   COLON        :
+Línea 24   ID           Int
+Línea 24   ASSIGN       =
+Línea 24   ID           suma
+Línea 25   LET          let
+Línea 25   ID           sinValor
+Línea 25   ASSIGN       =
+Línea 25   NIL          nil
+Línea 26   ID           print
+Línea 26   LPAREN       (
+Línea 26   STRING       "Resultado:"
+Línea 26   COMMA        ,
+Línea 26   ID           resultado
+Línea 26   RPAREN       )
+
+ERRORES LÉXICOS (0)
+Sin errores léxicos.
