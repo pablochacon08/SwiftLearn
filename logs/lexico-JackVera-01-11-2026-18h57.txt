@@ -1,9 +1,9 @@
 ANÁLISIS LÉXICO - SwiftLearn
 Archivo: algoritmos/algoritmo3.swift
 Desarrollador: JackVera
-Fecha: 01-11-2026 17:50
+Fecha: 01-11-2026 18:57
 
-TOKENS RECONOCIDOS (71)
+TOKENS RECONOCIDOS (75)
 Línea 5    LET          let
 Línea 5    ID           numeros
 Línea 5    ASSIGN       =
@@ -75,6 +75,10 @@ Línea 26   STRING       "Resultado:"
 Línea 26   COMMA        ,
 Línea 26   ID           resultado
 Línea 26   RPAREN       )
+Línea 29   LET          let
+Línea 29   ID           y
+Línea 29   ASSIGN       =
+Línea 29   INT          2
 
-ERRORES LÉXICOS (0)
-Sin errores léxicos.
+ERRORES LÉXICOS (1)
+Error léxico en la línea 29, columna 11: el carácter '$' no pertenece al lenguaje Swift. Revisa si es un error de escritura o elimínalo.
