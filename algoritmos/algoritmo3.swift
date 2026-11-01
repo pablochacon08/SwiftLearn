@@ -24,3 +24,7 @@ if suma > 10 {
 var resultado: Int = suma
 let sinValor = nil
 print("Resultado:", resultado)
+
+// Declara una variable con error lexico para el plan de pruebas
+let y = 2 $
+
