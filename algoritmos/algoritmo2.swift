@@ -36,3 +36,4 @@ if edadPablo >= 18 {
 if nombre != "Pablo" && contador < limite {
     print("El ciclo terminó antes del límite")
 }
+var x = 3 @
