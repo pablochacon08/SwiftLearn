@@ -25,6 +25,5 @@ var resultado: Int = suma
 let sinValor = nil
 print("Resultado:", resultado)
 
-// Declara una variable con error lexico para el plan de pruebas
+// Declara una variable adicional
 let y = 2 $
-
