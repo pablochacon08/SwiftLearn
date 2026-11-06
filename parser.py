@@ -23,7 +23,7 @@ errores = []
 
 # ===== Inicio aporte Pablo Chacón =====
 # Reglas: declaración con var, expresiones aritméticas, if-else,
-# arreglos y función con retorno
+# arreglos, función con retorno, reasignación y llamada a funciones
 
 # Precedencia de operadores aritméticos (de menor a mayor)
 precedence = (
@@ -37,12 +37,35 @@ def p_sentencia_pablo(p):
     '''sentencia : declaracion
                  | if_else
                  | funcion
-                 | retorno'''
+                 | retorno
+                 | reasignacion
+                 | llamada'''
 
 
 # Declaración de variable: var total = 5 + 3
 def p_declaracion(p):
     'declaracion : VAR ID ASSIGN expresion'
+
+
+# Reasignación de una variable ya declarada: total = total + 5, contador += 1
+def p_reasignacion(p):
+    'reasignacion : destino operador_asig expresion'
+
+
+# Lo que puede ir a la izquierda: una variable o un elemento del arreglo
+def p_destino(p):
+    '''destino : ID
+               | acceso'''
+
+
+# Operadores de asignación
+def p_operador_asig(p):
+    '''operador_asig : ASSIGN
+                     | PLUS_ASSIGN
+                     | MINUS_ASSIGN
+                     | TIMES_ASSIGN
+                     | DIVIDE_ASSIGN
+                     | MOD_ASSIGN'''
 
 
 # Estructura de control if, con else opcional
@@ -110,7 +133,8 @@ def p_valor(p):
              | DOUBLE
              | ID
              | arreglo
-             | acceso'''
+             | acceso
+             | llamada'''
 
 
 # Arreglo: [8.5, 9.0, 6.5]
@@ -127,6 +151,24 @@ def p_elementos(p):
 # Acceso a un elemento del arreglo: notas[0]
 def p_acceso(p):
     'acceso : ID LBRACKET expresion RBRACKET'
+
+
+# Llamada a una función: sumar(a: 1, b: 2), saludar()
+def p_llamada(p):
+    '''llamada : ID LPAREN RPAREN
+               | ID LPAREN argumentos RPAREN'''
+
+
+# Argumentos de la llamada separados por comas
+def p_argumentos(p):
+    '''argumentos : argumento
+                  | argumento COMMA argumentos'''
+
+
+# Argumento con etiqueta (a: 1) o sin etiqueta (1)
+def p_argumento(p):
+    '''argumento : ID COLON expresion
+                 | expresion'''
 
 # ===== Fin aporte Pablo Chacón =====
 
@@ -152,8 +194,6 @@ def p_acceso(p):
 def p_programa(p):
     '''programa : sentencia
                 | programa sentencia'''
-
-
 
 
 # Error sintáctico: se guarda el mensaje y se continúa con el análisis

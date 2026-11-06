@@ -1,7 +1,7 @@
 // Algoritmo 1 (sintáctico) - Pablo Chacón
 // Valida las reglas sintácticas del aporte de Pablo:
 // declaración con var, expresiones aritméticas, if-else,
-// arreglos y función con retorno
+// arreglos, función con retorno, reasignación y llamada a funciones
 
 /* Arreglo y acceso a sus elementos */
 var notas = [8.5, 9.0, 6.5, 10.0]
@@ -38,6 +38,20 @@ if promedio >= 7.0 {
     var aprobado = 0
     var bono = 0
 }
+
+/* Llamadas a funciones, con y sin etiqueta */
+var promedioFinal = calcularPromedio(lista: notas, total: 2.0)
+var mayor = mayorQue(a: 7, b: cantidad) * 2
+var decimal = Double(cantidad)
+
+/* Reasignación con = y con operadores compuestos */
+suma = suma + 1
+notas[0] = 9.5
+cantidad += 1
+cantidad -= 2
+ajuste *= 3
+ajuste /= 2
+residuo %= 2
 
 /* if sin else */
 if residuo == 0 {
