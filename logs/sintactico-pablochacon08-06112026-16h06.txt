@@ -1,0 +1,9 @@
+ANÁLISIS SINTÁCTICO - SwiftLearn
+Archivo: algoritmos/algoritmo1_sintactico.swift
+Desarrollador: pablochacon08
+Fecha: 06-11-2026 16:06
+
+ERRORES SINTÁCTICOS (3)
+Error sintáctico en la línea 64: no se esperaba '='. Revisa la instrucción antes de este símbolo.
+Error sintáctico en la línea 67: no se esperaba ']'. Revisa la instrucción antes de este símbolo.
+Error sintáctico en la línea 73: no se esperaba 'var'. Revisa la instrucción antes de este símbolo.
