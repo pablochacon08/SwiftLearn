@@ -1,0 +1,10 @@
+ANÁLISIS SINTÁCTICO - SwiftLearn
+Archivo: algoritmos/algoritmo2_sintactico.swift
+Desarrollador: ayaladanna04
+Fecha: 06-11-2026 22:45
+
+ERRORES SINTÁCTICOS (4)
+Error sintáctico en la línea 49: no se esperaba '='. Revisa la instrucción antes de este símbolo.
+Error sintáctico en la línea 53: no se esperaba '2'. Revisa la instrucción antes de este símbolo.
+Error sintáctico en la línea 57: no se esperaba '"Adiós"'. Revisa la instrucción antes de este símbolo.
+Error sintáctico en la línea 62: no se esperaba 'contador'. Revisa la instrucción antes de este símbolo.

@@ -93,8 +93,9 @@ reserved.update({
     'while': 'WHILE',
     'break': 'BREAK',
     'continue': 'CONTINUE',
+    'print': 'PRINT',
 })
-
+ 
 tokens += [
     'STRING',    # cadenas de texto "..."
     'EQ',        # ==
@@ -107,7 +108,7 @@ tokens += [
     'RBRACE',    # }
     'COLON',     # :
 ]
-
+ 
 # Operadores de comparación
 # PLY ordena las reglas de texto de mayor a menor longitud,
 # por eso <= se reconoce antes que < y == antes que =
@@ -117,26 +118,34 @@ t_LE = r'<='
 t_GE = r'>='
 t_LT = r'<'
 t_GT = r'>'
-
+ 
 # Delimitadores de bloque y separador de tipo / clave-valor
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'
 t_COLON = r':'
-
-
+ 
+ 
+# Cadena con comillas simples: no es válida en Swift
+def t_CADENA_SIMPLE(t):
+    r"'[^'\n]*'"
+    errores.append(f"Error léxico en la línea {t.lineno}: en Swift las "
+                   f"cadenas se escriben con comillas dobles. Cambia "
+                   f"{t.value} por \"{t.value[1:-1]}\".")
+ 
+ 
 # Cadena de texto entre comillas dobles, admite secuencias como \n o \"
 def t_STRING(t):
     r'"([^"\\\n]|\\.)*"'
     return t
-
-
+ 
+ 
 # Comentario de varias líneas /* ... */
 # Se descarta, pero se cuentan sus saltos de línea para no perder la numeración
 def t_COMMENT_MULTI(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
-
-
+ 
+ 
 # Comentario de una línea // ...
 # Se descarta. Al ser función, PLY lo revisa antes que t_DIVIDE
 def t_COMMENT(t):
