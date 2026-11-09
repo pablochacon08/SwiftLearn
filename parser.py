@@ -244,8 +244,83 @@ def p_par(p):
 
 
 # ===== Inicio aporte Jack Vera =====
-# Reglas: declaración de constantes con let, expresiones booleanas,
-# for-in, tuplas, función sin parámetros y lectura con readLine
+# Reglas: constantes con let, expresiones booleanas, ciclo for-in,
+# tuplas, función sin parámetros y lectura de datos con readLine
+
+# Precedencia de los operadores lógicos, de menor a mayor prioridad.
+# Se agregan antes de la tabla de Pablo para que primero se evalúe el !,
+# luego el && y al final el ||
+precedence = (
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('right', 'NOT'),
+) + precedence
+
+
+# Sentencias que se agregan con este aporte
+def p_sentencia_jack(p):
+    '''sentencia : declaracion_constante
+                 | declaracion_constante_tipada
+                 | ciclo_for
+                 | funcion_sin_parametros
+                 | sentencia SEMICOLON'''
+
+
+# Declaración de una constante: let pi = 3.14
+def p_declaracion_constante(p):
+    'declaracion_constante : LET ID ASSIGN expresion'
+
+
+# Declaración de una constante indicando su tipo: let nombre: String = "Jack"
+def p_declaracion_constante_tipada(p):
+    'declaracion_constante_tipada : LET ID COLON tipo ASSIGN expresion'
+
+
+# Se amplía la condición para poder unir varias con &&, || y negarlas con !
+# Por ejemplo: edad >= 18 && activo || !bloqueado
+def p_condicion_logica(p):
+    '''condicion : condicion AND condicion
+                 | condicion OR condicion
+                 | NOT condicion'''
+
+
+# Condición dentro de paréntesis: esAdmin || (edad >= 18 && !bloqueado)
+def p_condicion_parentesis(p):
+    'condicion : LPAREN condicion RPAREN'
+
+
+# Permite usar una sola variable como condición: if activo { ... }
+def p_condicion_expresion(p):
+    'condicion : expresion'
+
+
+# Ciclo for-in para recorrer una lista: for numero in numeros { ... }
+def p_ciclo_for(p):
+    'ciclo_for : FOR ID IN expresion LBRACE programa RBRACE'
+
+
+# Función que no recibe parámetros: func mostrar() { ... }
+def p_funcion_sin_parametros(p):
+    'funcion_sin_parametros : FUNC ID LPAREN RPAREN LBRACE programa RBRACE'
+
+
+# Valores nuevos: true, false, nil, tuplas y readLine()
+def p_valor_jack(p):
+    '''valor : TRUE
+             | FALSE
+             | NIL
+             | tupla
+             | lectura'''
+
+
+# Tupla de dos o más valores, que pueden ser de distinto tipo: (3, 4), ("Ana", 20)
+def p_tupla(p):
+    'tupla : LPAREN expresion COMMA elementos RPAREN'
+
+
+# Lectura de un dato ingresado por teclado: readLine()
+def p_lectura(p):
+    'lectura : READLINE LPAREN RPAREN'
 
 # ===== Fin aporte Jack Vera =====
 

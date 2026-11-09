@@ -165,6 +165,7 @@ reserved.update({
     'true': 'TRUE',
     'false': 'FALSE',
     'nil': 'NIL',
+    'readLine': 'READLINE',
 })
 
 tokens += [

@@ -1,0 +1,10 @@
+ANÁLISIS SINTÁCTICO - SwiftLearn
+Archivo: algoritmos/algoritmo3_sintactico.swift
+Desarrollador: cevicheman
+Fecha: 08-11-2026 23:58
+
+ERRORES SINTÁCTICOS (4)
+Error sintáctico en la línea 61: no se esperaba '='. Revisa la instrucción antes de este símbolo.
+Error sintáctico en la línea 65: no se esperaba '{'. Revisa la instrucción antes de este símbolo.
+Error sintáctico en la línea 70: no se esperaba 'numeros'. Revisa la instrucción antes de este símbolo.
+Error sintáctico en la línea 75: no se esperaba '{'. Revisa la instrucción antes de este símbolo.
