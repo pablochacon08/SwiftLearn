@@ -44,12 +44,12 @@ def p_sentencia_pablo(p):
 
 # Declaración de variable: var total = 5 + 3
 def p_declaracion(p):
-    'declaracion : VAR ID ASSIGN expresion'
+    'declaracion : VAR ID ASSIGN condicion'
 
 
 # Reasignación de una variable ya declarada: total = total + 5, contador += 1
 def p_reasignacion(p):
-    'reasignacion : destino operador_asig expresion'
+    'reasignacion : destino operador_asig condicion'
 
 
 # Lo que puede ir a la izquierda: una variable o un elemento del arreglo

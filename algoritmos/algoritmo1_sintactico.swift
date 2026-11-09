@@ -52,7 +52,7 @@ cantidad -= 2
 ajuste *= 3
 ajuste /= 2
 residuo %= 2
-
+var aprobadoFinal = promedio >= 7.0 && cantidad > 0
 /* if sin else */
 if residuo == 0 {
     var exacto = 1
