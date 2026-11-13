@@ -65,3 +65,11 @@ maximo += 5
 
 // Error 7: se cambia un elemento de un arreglo constante
 pesos[1] = 0.5
+
+// Error 8: se usa una variable no declarada dentro de una función
+func calcularExtra(base: Int) -> Int {
+    return base + recargo
+}
+
+// Error 9: se cambia una constante con -=
+maximo -= 1

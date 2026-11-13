@@ -77,13 +77,7 @@ def p_declaracion(p):
 # Reasignación de una variable ya declarada: total = total + 5, contador += 1
 def p_reasignacion(p):
     'reasignacion : destino operador_asig condicion'
-    # Regla semántica 2: una constante (let) no puede cambiar su valor
-    nombre = p[1]
-    if nombre in tabla_simbolos['constantes']:
-        errores_semanticos.append(
-            f"Error semántico en la línea {p.lineno(1)}: '{nombre}' es una "
-            f"constante (let) y no se puede cambiar su valor. Si necesitas "
-            f"modificarla, declárala con var en lugar de let.")
+    # La regla 2 se revisa en p_destino
 
 
 # Lo que puede ir a la izquierda: una variable o un elemento del arreglo
@@ -92,9 +86,18 @@ def p_destino(p):
                | ID LBRACKET expresion RBRACKET'''
     # Regla semántica 1: la variable debe estar declarada
     buscar_variable(p[1], p.lineno(1))
-    # Semántico: devuelve el nombre y su línea para revisar la regla 2
-    p[0] = p[1]
-    p.set_lineno(0, p.lineno(1))
+    # Regla semántica 2: una constante (let) no puede cambiar su valor
+    if p[1] in tabla_simbolos['constantes']:
+        if len(p) == 2:
+            mensaje = (f"'{p[1]}' es una constante (let) y no se puede cambiar "
+                       f"su valor. Si necesitas modificarla, declárala con var "
+                       f"en lugar de let.")
+        else:
+            mensaje = (f"'{p[1]}' es un arreglo constante (let): no se pueden "
+                       f"cambiar sus elementos. Si necesitas modificarlos, "
+                       f"declara el arreglo con var.")
+        errores_semanticos.append(
+            f"Error semántico en la línea {p.lineno(1)}: {mensaje}")
 
 
 # Operadores de asignación
