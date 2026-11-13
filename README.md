@@ -67,6 +67,6 @@ El log incluye el archivo analizado, el desarrollador, la fecha y hora, la lista
 ## Avances
 
 - [x] Avance 1: Analizador léxico (PLY lex)
-- [ ] Avance 2: Analizador sintáctico (PLY yacc)
+- [x] Avance 2: Analizador sintáctico (PLY yacc)
 - [ ] Avance 3: Analizador semántico
 - [ ] Interfaz gráfica
