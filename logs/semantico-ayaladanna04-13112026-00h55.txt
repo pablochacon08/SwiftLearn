@@ -1,0 +1,9 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: algoritmos/algoritmo2_semantico.swift
+Desarrollador: ayaladanna04
+Fecha: 13-11-2026 00:55
+
+ERRORES SEMÁNTICOS (3)
+Error semántico en la línea 32: 'break' solo puede usarse dentro de un ciclo while o for. Muévelo dentro de un ciclo o elimínalo.
+Error semántico en la línea 52: 'break' solo puede usarse dentro de un ciclo while o for. Muévelo dentro de un ciclo o elimínalo.
+Error semántico en la línea 56: 'continue' solo puede usarse dentro de un ciclo while o for. Muévelo dentro de un ciclo o elimínalo.
