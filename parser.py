@@ -20,6 +20,15 @@ from lexer import tokens
 # Lista de errores sintácticos encontrados (se escribe en el log)
 errores = []
 
+# ===== Base del analizador semántico =====
+# Tabla de símbolos: guarda cada variable declarada con su tipo
+tabla_simbolos = {
+    'variables': {},
+}
+ 
+# Lista de errores semánticos encontrados (se escribe en el log)
+errores_semanticos = []
+
 
 # ===== Inicio aporte Pablo Chacón =====
 # Reglas: declaración con var, expresiones aritméticas, if-else,
@@ -239,6 +248,136 @@ def p_pares(p):
 # Par clave: valor
 def p_par(p):
     'par : expresion COLON expresion'
+    
+# Reglas: declaración con anotación de tipo, while, diccionarios,
+# función sin retorno con parámetros e impresión con print
+ 
+ 
+# Declaración con anotación de tipo: var nombre: String = "Danna"
+def p_declaracion_tipada(p):
+    'declaracion_tipada : VAR ID COLON tipo ASSIGN expresion'
+    # Regla semántica 1: el valor debe coincidir con el tipo declarado
+    nombre = p[2]
+    tipo_declarado = p[4]
+    tipo_valor = p[6]
+    if not tipos_compatibles(tipo_declarado, tipo_valor):
+        errores_semanticos.append(
+            f"Error semántico en la línea {p.lineno(1)}: la variable "
+            f"'{nombre}' es de tipo {tipo_declarado}, pero se le asigna un "
+            f"valor de tipo {tipo_valor}. Asigna un valor de tipo "
+            f"{tipo_declarado} o cambia el tipo de la variable.")
+    # La variable se guarda con el tipo declarado
+    tabla_simbolos['variables'][nombre] = tipo_declarado
+ 
+ 
+# Regla semántica 1: compara el tipo declarado con el tipo del valor
+def tipos_compatibles(tipo_declarado, tipo_valor):
+    # Si no se conoce el tipo del valor, no se puede validar
+    if tipo_valor is None:
+        return True
+    # Un diccionario vacío [:] sirve para cualquier tipo de diccionario
+    if tipo_valor == 'DiccionarioVacio':
+        return tipo_declarado.startswith('[') and ':' in tipo_declarado
+    # Un número entero también se acepta como Double: var x: Double = 5
+    if tipo_declarado == 'Double' and tipo_valor == 'Int':
+        return True
+    return tipo_declarado == tipo_valor
+ 
+ 
+# Tipo diccionario: [String: Int]
+def p_tipo_diccionario(p):
+    'tipo : LBRACKET ID COLON ID RBRACKET'
+    # Semántico: devuelve el tipo, por ejemplo [String: Int]
+    p[0] = f"[{p[2]}: {p[4]}]"
+ 
+ 
+# Estructura de control while: while contador < 10 { contador += 1 }
+def p_ciclo_while(p):
+    'ciclo_while : WHILE condicion LBRACE programa RBRACE'
+    # Regla semántica 2: los break/continue de este while son válidos
+    cerrar_ciclo(p.lexpos(1), p.lexpos(5))
+ 
+ 
+# Regla semántica 2: break y continue encontrados que aún no están
+# dentro de un ciclo. Cada uno se guarda con su línea y su posición.
+controles_pendientes = []
+ 
+ 
+# Al cerrar un ciclo se quitan los break/continue que están entre
+# la palabra while o for y la llave que cierra el ciclo
+def cerrar_ciclo(inicio, fin):
+    for control in controles_pendientes[:]:
+        if inicio < control['posicion'] < fin:
+            controles_pendientes.remove(control)
+ 
+ 
+# Al terminar el análisis, los que quedaron pendientes están fuera de un ciclo
+def verificar_control_ciclo():
+    for control in controles_pendientes:
+        errores_semanticos.append(
+            f"Error semántico en la línea {control['linea']}: "
+            f"'{control['palabra']}' solo puede usarse dentro de un ciclo "
+            f"while o for. Muévelo dentro de un ciclo o elimínalo.")
+ 
+ 
+# Control del ciclo: break y continue
+def p_control_ciclo(p):
+    '''control_ciclo : BREAK
+                     | CONTINUE'''
+    # Regla semántica 2: se guarda hasta saber si está dentro de un ciclo
+    controles_pendientes.append({'palabra': p[1],
+                                 'linea': p.lineno(1),
+                                 'posicion': p.lexpos(1)})
+ 
+ 
+# Función sin retorno con parámetros: func saludar(nombre: String) { ... }
+def p_funcion_sin_retorno(p):
+    'funcion_sin_retorno : FUNC ID LPAREN parametros RPAREN LBRACE programa RBRACE'
+ 
+ 
+# Impresión de uno o varios valores: print("Hola", nombre)
+def p_impresion(p):
+    '''impresion : PRINT LPAREN elementos RPAREN
+                 | PRINT LPAREN RPAREN'''
+ 
+ 
+# Nuevos valores: cadenas de texto y diccionarios
+def p_valor_danna(p):
+    '''valor : STRING
+             | diccionario'''
+    # Semántico: una cadena es de tipo String
+    if isinstance(p[1], str) and p.slice[1].type == 'STRING':
+        p[0] = 'String'
+    else:
+        p[0] = p[1]
+ 
+ 
+# Diccionario con pares clave: valor, o vacío: ["Danna": 21, "Pablo": 17], [:]
+def p_diccionario(p):
+    '''diccionario : LBRACKET pares RBRACKET
+                   | LBRACKET COLON RBRACKET'''
+    # Semántico: el tipo se toma del primer par, por ejemplo [String: Int]
+    if p[2] == ':':
+        p[0] = 'DiccionarioVacio'
+    elif p[2][0] is None or p[2][1] is None:
+        p[0] = None
+    else:
+        p[0] = f"[{p[2][0]}: {p[2][1]}]"
+ 
+ 
+# Pares clave: valor separados por comas
+def p_pares(p):
+    '''pares : par
+             | pares COMMA par'''
+    # Semántico: se conservan los tipos del primer par
+    p[0] = p[1]
+ 
+ 
+# Par clave: valor
+def p_par(p):
+    'par : expresion COLON expresion'
+    # Semántico: devuelve el tipo de la clave y el tipo del valor
+    p[0] = (p[1], p[3])
  
 # ===== Fin aporte Danna Ayala =====
 
@@ -358,8 +497,12 @@ def analizar(ruta_algoritmo, usuario):
         codigo = archivo.read()
 
     errores.clear()
+    errores_semanticos.clear()
+    tabla_simbolos['variables'].clear()
+    controles_pendientes.clear()
     analizador_lexico.lexer.lineno = 1
     parser.parse(codigo, lexer=analizador_lexico.lexer)
+    verificar_control_ciclo()
 
     ahora = datetime.now()
     nombre_log = (f"sintactico-{usuario}-"
@@ -380,6 +523,26 @@ def analizar(ruta_algoritmo, usuario):
     for error in errores:
         print(f"  {error}")
     print(f"Log generado: {ruta_log}")
+    
+    nombre_log = (f"semantico-{usuario}-"
+                  f"{ahora.strftime('%d%m%Y')}-{ahora.strftime('%Hh%M')}.txt")
+    ruta_log = os.path.join('logs', nombre_log)
+ 
+    with open(ruta_log, 'w', encoding='utf-8') as log:
+        log.write("ANÁLISIS SEMÁNTICO - SwiftLearn\n")
+        log.write(f"Archivo: {ruta_algoritmo}\n")
+        log.write(f"Desarrollador: {usuario}\n")
+        log.write(f"Fecha: {ahora.strftime('%d-%m-%Y %H:%M')}\n\n")
+        log.write(f"ERRORES SEMÁNTICOS ({len(errores_semanticos)})\n")
+        log.write("\n".join(errores_semanticos) if errores_semanticos
+                  else "Sin errores semánticos.")
+        log.write("\n")
+ 
+    print(f"Errores semánticos: {len(errores_semanticos)}")
+    for error in errores_semanticos:
+        print(f"  {error}")
+    print(f"Log generado: {ruta_log}")
+    
 
 
 if __name__ == '__main__':
