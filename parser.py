@@ -24,6 +24,7 @@ errores = []
 # Tabla de símbolos: guarda cada variable declarada con su tipo
 tabla_simbolos = {
     'variables': {},
+    'constantes': set(),    # nombres declarados con let (regla 2)
 }
  
 # Lista de errores semánticos encontrados (se escribe en el log)
@@ -33,12 +34,27 @@ errores_semanticos = []
 # ===== Inicio aporte Pablo Chacón =====
 # Reglas: declaración con var, expresiones aritméticas, if-else,
 # arreglos, función con retorno, reasignación y llamada a funciones
+# Reglas semánticas de Pablo:
+#   1) Una variable debe declararse antes de usarse
+#   2) Una constante (let) no puede cambiar su valor
 
 # Precedencia de operadores aritméticos (de menor a mayor)
 precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE', 'MOD'),
 )
+
+
+# Regla semántica 1: devuelve el tipo de la variable si ya fue declarada.
+# Si no fue declarada, guarda el error y devuelve None (tipo desconocido).
+def buscar_variable(nombre, linea):
+    if nombre not in tabla_simbolos['variables']:
+        errores_semanticos.append(
+            f"Error semántico en la línea {linea}: la variable '{nombre}' "
+            f"se usa antes de declararse. Declárala antes con var o let, "
+            f"por ejemplo: var {nombre} = 0.")
+        return None
+    return tabla_simbolos['variables'][nombre]
 
 
 # Sentencias del aporte de Pablo
@@ -54,17 +70,31 @@ def p_sentencia_pablo(p):
 # Declaración de variable: var total = 5 + 3
 def p_declaracion(p):
     'declaracion : VAR ID ASSIGN condicion'
+    # Semántico: se guarda la variable con el tipo de su valor
+    tabla_simbolos['variables'][p[2]] = p[4]
 
 
 # Reasignación de una variable ya declarada: total = total + 5, contador += 1
 def p_reasignacion(p):
     'reasignacion : destino operador_asig condicion'
+    # Regla semántica 2: una constante (let) no puede cambiar su valor
+    nombre = p[1]
+    if nombre in tabla_simbolos['constantes']:
+        errores_semanticos.append(
+            f"Error semántico en la línea {p.lineno(1)}: '{nombre}' es una "
+            f"constante (let) y no se puede cambiar su valor. Si necesitas "
+            f"modificarla, declárala con var en lugar de let.")
 
 
 # Lo que puede ir a la izquierda: una variable o un elemento del arreglo
 def p_destino(p):
     '''destino : ID
-               | acceso'''
+               | ID LBRACKET expresion RBRACKET'''
+    # Regla semántica 1: la variable debe estar declarada
+    buscar_variable(p[1], p.lineno(1))
+    # Semántico: devuelve el nombre y su línea para revisar la regla 2
+    p[0] = p[1]
+    p.set_lineno(0, p.lineno(1))
 
 
 # Operadores de asignación
@@ -97,12 +127,19 @@ def p_parametros(p):
 # Parámetro con su tipo: a: Int
 def p_parametro(p):
     'parametro : ID COLON tipo'
+    # Semántico: el parámetro queda declarado para usarlo en la función
+    tabla_simbolos['variables'][p[1]] = p[3]
 
 
 # Tipo de dato: Int, Double o arreglo como [Double]
 def p_tipo(p):
     '''tipo : ID
             | LBRACKET ID RBRACKET'''
+    # Semántico: devuelve el tipo, por ejemplo Int o [Double]
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = f"[{p[2]}]"
 
 
 # Sentencia return con su valor
@@ -113,6 +150,8 @@ def p_retorno(p):
 # Condición simple: compara dos expresiones
 def p_condicion(p):
     'condicion : expresion comparador expresion'
+    # Semántico: una comparación da un valor de tipo Bool
+    p[0] = 'Bool'
 
 
 # Operadores de comparación
@@ -134,6 +173,15 @@ def p_expresion(p):
                  | expresion MOD expresion
                  | LPAREN expresion RPAREN
                  | valor'''
+    # Semántico: devuelve el tipo de la expresión
+    if len(p) == 2:
+        p[0] = p[1]                 # valor
+    elif p[1] == '(':
+        p[0] = p[2]                 # (expresion)
+    elif p[1] == p[3]:
+        p[0] = p[1]                 # Int + Int da Int
+    else:
+        p[0] = None                 # tipos distintos: tipo desconocido
 
 
 # Valores que pueden formar una expresión
@@ -144,22 +192,44 @@ def p_valor(p):
              | arreglo
              | acceso
              | llamada'''
+    # Semántico: devuelve el tipo del valor
+    token = p.slice[1].type
+    if token == 'INT':
+        p[0] = 'Int'
+    elif token == 'DOUBLE':
+        p[0] = 'Double'
+    elif token == 'ID':
+        # Regla semántica 1: la variable debe estar declarada
+        p[0] = buscar_variable(p[1], p.lineno(1))
+    else:
+        p[0] = p[1]                 # arreglo, acceso o llamada
 
 
 # Arreglo: [8.5, 9.0, 6.5]
 def p_arreglo(p):
     'arreglo : LBRACKET elementos RBRACKET'
+    # Semántico: el tipo se toma del primer elemento, por ejemplo [Double]
+    p[0] = f"[{p[2]}]" if p[2] else None
 
 
 # Elementos del arreglo separados por comas
 def p_elementos(p):
     '''elementos : expresion
                  | elementos COMMA expresion'''
+    # Semántico: se conserva el tipo del primer elemento
+    p[0] = p[1]
 
 
 # Acceso a un elemento del arreglo: notas[0]
 def p_acceso(p):
     'acceso : ID LBRACKET expresion RBRACKET'
+    # Regla semántica 1: el arreglo debe estar declarado
+    tipo = buscar_variable(p[1], p.lineno(1))
+    # Semántico: en un arreglo [Double] cada elemento es Double
+    if tipo and tipo.startswith('[') and ':' not in tipo:
+        p[0] = tipo[1:-1]
+    else:
+        p[0] = None
 
 
 # Llamada a una función: sumar(a: 1, b: 2), saludar()
@@ -408,11 +478,17 @@ def p_sentencia_jack(p):
 # Declaración de una constante: let pi = 3.14
 def p_declaracion_constante(p):
     'declaracion_constante : LET ID ASSIGN expresion'
+    # Semántico: la constante se guarda con su tipo y se marca como let
+    tabla_simbolos['variables'][p[2]] = p[4]
+    tabla_simbolos['constantes'].add(p[2])
 
 
 # Declaración de una constante indicando su tipo: let nombre: String = "Jack"
 def p_declaracion_constante_tipada(p):
     'declaracion_constante_tipada : LET ID COLON tipo ASSIGN expresion'
+    # Semántico: la constante se guarda con su tipo y se marca como let
+    tabla_simbolos['variables'][p[2]] = p[4]
+    tabla_simbolos['constantes'].add(p[2])
 
 
 # Se amplía la condición para poder unir varias con &&, || y negarlas con !
@@ -431,11 +507,21 @@ def p_condicion_parentesis(p):
 # Permite usar una sola variable como condición: if activo { ... }
 def p_condicion_expresion(p):
     'condicion : expresion'
+    # Semántico: la condición tiene el mismo tipo que la expresión
+    p[0] = p[1]
 
 
 # Ciclo for-in para recorrer una lista: for numero in numeros { ... }
 def p_ciclo_for(p):
-    'ciclo_for : FOR ID IN expresion LBRACE programa RBRACE'
+    'ciclo_for : FOR variable_for IN expresion LBRACE programa RBRACE'
+    # Semántico: los break/continue de este for son válidos
+    cerrar_ciclo(p.lexpos(1), p.lexpos(7))
+
+
+# Variable del for: se declara antes de analizar el cuerpo del ciclo
+def p_variable_for(p):
+    'variable_for : ID'
+    tabla_simbolos['variables'][p[1]] = None
 
 
 # Función que no recibe parámetros: func mostrar() { ... }
@@ -499,6 +585,7 @@ def analizar(ruta_algoritmo, usuario):
     errores.clear()
     errores_semanticos.clear()
     tabla_simbolos['variables'].clear()
+    tabla_simbolos['constantes'].clear()
     controles_pendientes.clear()
     analizador_lexico.lexer.lineno = 1
     parser.parse(codigo, lexer=analizador_lexico.lexer)

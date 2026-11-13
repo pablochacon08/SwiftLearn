@@ -1,0 +1,12 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: algoritmos/algoritmo2_semantico.swift
+Desarrollador: pablochacon08
+Fecha: 13-11-2026 10:19
+
+ERRORES SEMÁNTICOS (6)
+Error semántico en la línea 39: la variable 'anios' es de tipo Int, pero se le asigna un valor de tipo String. Asigna un valor de tipo Int o cambia el tipo de la variable.
+Error semántico en la línea 42: la variable 'apellido' es de tipo String, pero se le asigna un valor de tipo Int. Asigna un valor de tipo String o cambia el tipo de la variable.
+Error semántico en la línea 45: la variable 'texto' es de tipo String, pero se le asigna un valor de tipo Int. Asigna un valor de tipo String o cambia el tipo de la variable.
+Error semántico en la línea 48: la variable 'notas' es de tipo [String: Int], pero se le asigna un valor de tipo [String: String]. Asigna un valor de tipo [String: Int] o cambia el tipo de la variable.
+Error semántico en la línea 52: 'break' solo puede usarse dentro de un ciclo while o for. Muévelo dentro de un ciclo o elimínalo.
+Error semántico en la línea 56: 'continue' solo puede usarse dentro de un ciclo while o for. Muévelo dentro de un ciclo o elimínalo.
