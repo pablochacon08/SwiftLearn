@@ -1,0 +1,15 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: algoritmos/algoritmo1_semantico.swift
+Desarrollador: pablochacon08
+Fecha: 14-11-2026 01:59
+
+ERRORES SEMÁNTICOS (9)
+Error semántico en la línea 48: la variable 'bono' se usa antes de declararse. Declárala antes con var o let, por ejemplo: var bono = 0.
+Error semántico en la línea 51: la variable 'contador' se usa antes de declararse. Declárala antes con var o let, por ejemplo: var contador = 0.
+Error semántico en la línea 54: la variable 'valores' se usa antes de declararse. Declárala antes con var o let, por ejemplo: var valores = 0.
+Error semántico en la línea 57: la variable 'triple' se usa antes de declararse. Declárala antes con var o let, por ejemplo: var triple = 0.
+Error semántico en la línea 61: 'maximo' es una constante (let) y no se puede cambiar su valor. Si necesitas modificarla, declárala con var en lugar de let.
+Error semántico en la línea 64: 'maximo' es una constante (let) y no se puede cambiar su valor. Si necesitas modificarla, declárala con var en lugar de let.
+Error semántico en la línea 67: 'pesos' es un arreglo constante (let): no se pueden cambiar sus elementos. Si necesitas modificarlos, declara el arreglo con var.
+Error semántico en la línea 71: la variable 'recargo' se usa antes de declararse. Declárala antes con var o let, por ejemplo: var recargo = 0.
+Error semántico en la línea 75: 'maximo' es una constante (let) y no se puede cambiar su valor. Si necesitas modificarla, declárala con var en lugar de let.
