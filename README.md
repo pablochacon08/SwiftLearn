@@ -30,6 +30,11 @@ sudo apt install python3-tk
 
 > **WSL:** para que se abra la ventana de la interfaz se necesita Windows 11, que incluye WSLg (soporte de aplicaciones gráficas de Linux). En Windows 10 la interfaz no se puede mostrar desde WSL.
 
+**macOS:** se recomienda instalar Python desde [python.org](https://www.python.org/downloads/), que ya incluye Tkinter. Si usas Homebrew, instala también Tkinter con `brew install python-tk`. Luego, desde la carpeta del proyecto:
+
+    python3 -m pip install ply
+    python3 interfaz.py
+
 ## Uso
 
 ### Interfaz gráfica

@@ -1,0 +1,7 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: (editor)
+Desarrollador: pablochacon08
+Fecha: 14-11-2026 02:12
+
+ERRORES SEMÁNTICOS (1)
+Error semántico en la línea 1: la variable 'edad' se usa antes de declararse. Declárala antes con var o let, por ejemplo: var edad = 0.

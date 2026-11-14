@@ -1,0 +1,13 @@
+ANÁLISIS LÉXICO - SwiftLearn
+Archivo: (editor)
+Desarrollador: PabloChacon
+Fecha: 14-11-2026 02:12
+
+TOKENS RECONOCIDOS (4)
+Línea 1    PRINT        print
+Línea 1    LPAREN       (
+Línea 1    ID           edad
+Línea 1    RPAREN       )
+
+ERRORES LÉXICOS (0)
+Sin errores léxicos.
