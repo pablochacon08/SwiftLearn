@@ -580,11 +580,9 @@ start = 'programa'
 parser = yacc.yacc()
 
 
-def analizar(ruta_algoritmo, usuario):
-    """Analiza un archivo Swift y guarda el log en la carpeta logs/."""
-    with open(ruta_algoritmo, encoding='utf-8') as archivo:
-        codigo = archivo.read()
-
+# Limpia el estado global y analiza el código una vez.
+# Un solo recorrido del parser llena los errores sintácticos y los semánticos.
+def _parsear(codigo):
     errores.clear()
     errores_semanticos.clear()
     tabla_simbolos['variables'].clear()
@@ -594,45 +592,77 @@ def analizar(ruta_algoritmo, usuario):
     parser.parse(codigo, lexer=analizador_lexico.lexer)
     verificar_control_ciclo()
 
-    ahora = datetime.now()
-    nombre_log = (f"sintactico-{usuario}-"
+
+# Escribe un log en logs/ y devuelve su nombre
+def _escribir_log(prefijo, titulo, encabezado, sin_errores, lista,
+                  usuario, ruta_algoritmo, ahora):
+    nombre_log = (f"{prefijo}-{usuario}-"
                   f"{ahora.strftime('%d%m%Y')}-{ahora.strftime('%Hh%M')}.txt")
     os.makedirs('logs', exist_ok=True)
     ruta_log = os.path.join('logs', nombre_log)
 
     with open(ruta_log, 'w', encoding='utf-8') as log:
-        log.write("ANÁLISIS SINTÁCTICO - SwiftLearn\n")
+        log.write(f"{titulo} - SwiftLearn\n")
         log.write(f"Archivo: {ruta_algoritmo}\n")
         log.write(f"Desarrollador: {usuario}\n")
         log.write(f"Fecha: {ahora.strftime('%d-%m-%Y %H:%M')}\n\n")
-        log.write(f"ERRORES SINTÁCTICOS ({len(errores)})\n")
-        log.write("\n".join(errores) if errores else "Sin errores sintácticos.")
+        log.write(f"{encabezado} ({len(lista)})\n")
+        log.write("\n".join(lista) if lista else sin_errores)
         log.write("\n")
+    return nombre_log
 
-    print(f"Errores sintácticos: {len(errores)}")
-    for error in errores:
+
+def analizar_sintactico(codigo, usuario, ruta_algoritmo='(editor)', ahora=None):
+    """Análisis sintáctico de un texto. Genera solo el log sintáctico.
+
+    Devuelve {'errores': [...], 'log': nombre_del_log}.
+    """
+    _parsear(codigo)
+    ahora = ahora or datetime.now()
+    nombre_log = _escribir_log('sintactico', 'ANÁLISIS SINTÁCTICO',
+                               'ERRORES SINTÁCTICOS',
+                               'Sin errores sintácticos.', errores,
+                               usuario, ruta_algoritmo, ahora)
+    return {'errores': list(errores), 'log': nombre_log}
+
+
+def analizar_semantico(codigo, usuario, ruta_algoritmo='(editor)', ahora=None):
+    """Análisis semántico de un texto. Genera solo el log semántico.
+
+    Devuelve {'errores': [...], 'errores_sintacticos': N, 'log': nombre}.
+    'errores_sintacticos' sirve para avisar que hay que corregirlos primero.
+    """
+    _parsear(codigo)
+    ahora = ahora or datetime.now()
+    nombre_log = _escribir_log('semantico', 'ANÁLISIS SEMÁNTICO',
+                               'ERRORES SEMÁNTICOS',
+                               'Sin errores semánticos.', errores_semanticos,
+                               usuario, ruta_algoritmo, ahora)
+    return {'errores': list(errores_semanticos),
+            'errores_sintacticos': len(errores),
+            'log': nombre_log}
+
+
+def analizar(ruta_algoritmo, usuario):
+    """Analiza un archivo Swift desde la consola y genera los dos logs."""
+    with open(ruta_algoritmo, encoding='utf-8') as archivo:
+        codigo = archivo.read()
+
+    # Una sola fecha para que los dos logs tengan la misma hora
+    ahora = datetime.now()
+
+    sintactico = analizar_sintactico(codigo, usuario, ruta_algoritmo, ahora)
+    print(f"Errores sintácticos: {len(sintactico['errores'])}")
+    for error in sintactico['errores']:
         print(f"  {error}")
-    print(f"Log generado: {ruta_log}")
-    
-    nombre_log = (f"semantico-{usuario}-"
-                  f"{ahora.strftime('%d%m%Y')}-{ahora.strftime('%Hh%M')}.txt")
-    ruta_log = os.path.join('logs', nombre_log)
- 
-    with open(ruta_log, 'w', encoding='utf-8') as log:
-        log.write("ANÁLISIS SEMÁNTICO - SwiftLearn\n")
-        log.write(f"Archivo: {ruta_algoritmo}\n")
-        log.write(f"Desarrollador: {usuario}\n")
-        log.write(f"Fecha: {ahora.strftime('%d-%m-%Y %H:%M')}\n\n")
-        log.write(f"ERRORES SEMÁNTICOS ({len(errores_semanticos)})\n")
-        log.write("\n".join(errores_semanticos) if errores_semanticos
-                  else "Sin errores semánticos.")
-        log.write("\n")
- 
-    print(f"Errores semánticos: {len(errores_semanticos)}")
-    for error in errores_semanticos:
+    print(f"Log generado: {os.path.join('logs', sintactico['log'])}")
+
+    semantico = analizar_semantico(codigo, usuario, ruta_algoritmo, ahora)
+    print(f"Errores semánticos: {len(semantico['errores'])}")
+    for error in semantico['errores']:
         print(f"  {error}")
-    print(f"Log generado: {ruta_log}")
-    
+    print(f"Log generado: {os.path.join('logs', semantico['log'])}")
+
 
 
 if __name__ == '__main__':

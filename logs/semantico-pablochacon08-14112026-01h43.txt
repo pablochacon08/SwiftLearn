@@ -1,0 +1,7 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: algoritmos/algoritmo1_sintactico.swift
+Desarrollador: pablochacon08
+Fecha: 14-11-2026 01:43
+
+ERRORES SEMÁNTICOS (1)
+Error semántico en la línea 73: la variable 'menor' se usa antes de declararse. Declárala antes con var o let, por ejemplo: var menor = 0.

@@ -241,20 +241,26 @@ def t_error(t):
 lexer = lex.lex()
 
 
-def analizar(ruta_algoritmo, autor):
-    """Analiza un archivo Swift y guarda el log en la carpeta logs/."""
-    with open(ruta_algoritmo, encoding='utf-8') as archivo:
-        codigo = archivo.read()
+def analizar_codigo(codigo, autor, ruta_algoritmo='(editor)'):
+    """Analiza un texto Swift, guarda el log en logs/ y devuelve los resultados.
 
+    Devuelve un diccionario con:
+      'tokens'  : lista de tuplas (línea, tipo, valor)
+      'errores' : lista de mensajes de error léxico
+      'log'     : nombre del archivo de log generado
+    """
+    # Se limpia el estado global antes de cada análisis
     errores.clear()
     lexer.lineno = 1
     lexer.input(codigo)
 
+    tokens_encontrados = []
     lineas_tokens = []
     while True:
         tok = lexer.token()
         if not tok:
             break
+        tokens_encontrados.append((tok.lineno, tok.type, tok.value))
         lineas_tokens.append(
             f"Línea {tok.lineno:<4} {tok.type:<12} {tok.value}")
 
@@ -274,9 +280,21 @@ def analizar(ruta_algoritmo, autor):
         log.write("\n".join(errores) if errores else "Sin errores léxicos.")
         log.write("\n")
 
-    print(f"Tokens reconocidos: {len(lineas_tokens)}")
-    print(f"Errores léxicos: {len(errores)}")
-    print(f"Log generado: {ruta_log}")
+    return {'tokens': tokens_encontrados,
+            'errores': list(errores),
+            'log': nombre_log}
+
+
+def analizar(ruta_algoritmo, autor):
+    """Analiza un archivo Swift desde la consola (reutiliza analizar_codigo)."""
+    with open(ruta_algoritmo, encoding='utf-8') as archivo:
+        codigo = archivo.read()
+
+    resultado = analizar_codigo(codigo, autor, ruta_algoritmo)
+
+    print(f"Tokens reconocidos: {len(resultado['tokens'])}")
+    print(f"Errores léxicos: {len(resultado['errores'])}")
+    print(f"Log generado: {os.path.join('logs', resultado['log'])}")
 
 
 if __name__ == '__main__':
