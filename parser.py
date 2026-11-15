@@ -269,66 +269,9 @@ def p_sentencia_danna(p):
  
  
 # Declaración con anotación de tipo: var nombre: String = "Danna"
+# El valor puede ser una expresión o una condición: var activo: Bool = edad >= 18
 def p_declaracion_tipada(p):
-    'declaracion_tipada : VAR ID COLON tipo ASSIGN expresion'
- 
- 
-# Tipo diccionario: [String: Int]
-def p_tipo_diccionario(p):
-    'tipo : LBRACKET ID COLON ID RBRACKET'
- 
- 
-# Estructura de control while: while contador < 10 { contador += 1 }
-def p_ciclo_while(p):
-    'ciclo_while : WHILE condicion LBRACE programa RBRACE'
- 
- 
-# Control del ciclo: break y continue
-def p_control_ciclo(p):
-    '''control_ciclo : BREAK
-                     | CONTINUE'''
- 
- 
-# Función sin retorno con parámetros: func saludar(nombre: String) { ... }
-def p_funcion_sin_retorno(p):
-    'funcion_sin_retorno : FUNC ID LPAREN parametros RPAREN LBRACE programa RBRACE'
- 
- 
-# Impresión de uno o varios valores: print("Hola", nombre)
-def p_impresion(p):
-    '''impresion : PRINT LPAREN elementos RPAREN
-                 | PRINT LPAREN RPAREN'''
- 
- 
-# Nuevos valores: cadenas de texto y diccionarios
-def p_valor_danna(p):
-    '''valor : STRING
-             | diccionario'''
- 
- 
-# Diccionario con pares clave: valor, o vacío: ["Danna": 21, "Pablo": 17], [:]
-def p_diccionario(p):
-    '''diccionario : LBRACKET pares RBRACKET
-                   | LBRACKET COLON RBRACKET'''
- 
- 
-# Pares clave: valor separados por comas
-def p_pares(p):
-    '''pares : par
-             | pares COMMA par'''
- 
- 
-# Par clave: valor
-def p_par(p):
-    'par : expresion COLON expresion'
-    
-# Reglas: declaración con anotación de tipo, while, diccionarios,
-# función sin retorno con parámetros e impresión con print
- 
- 
-# Declaración con anotación de tipo: var nombre: String = "Danna"
-def p_declaracion_tipada(p):
-    'declaracion_tipada : VAR ID COLON tipo ASSIGN expresion'
+    'declaracion_tipada : VAR ID COLON tipo ASSIGN condicion'
     # Regla semántica 1: el valor debe coincidir con el tipo declarado
     nombre = p[2]
     tipo_declarado = p[4]

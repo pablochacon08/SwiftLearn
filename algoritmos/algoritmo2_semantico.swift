@@ -13,7 +13,7 @@ var saludo: String = "Hola " + nombre
 var edades: [String: Int] = ["Danna": 21, "Pablo": 17]
 var vacio: [String: Int] = [:]
 var copiaEdad: Int = edad
-
+var mayorDeEdad: Bool = edad >= 18 && copiaEdad > 0
 /* Regla 2: break y continue dentro de ciclos */
 var contador: Int = 0
 while contador < 10 {
