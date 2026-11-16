@@ -1,0 +1,12 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: algoritmos/algoritmo3_semantico.swift
+Desarrollador: cevicheman
+Fecha: 16-11-2026 02:58
+
+ERRORES SEMÁNTICOS (6)
+Error semántico en la línea 49: no se puede operar un Int con un Double sin convertirlos. Convierte uno de los dos, por ejemplo: Double(entero) o Int(decimal).
+Error semántico en la línea 52: no se puede operar un Int con un Double sin convertirlos. Convierte uno de los dos, por ejemplo: Double(entero) o Int(decimal).
+Error semántico en la línea 55: no se puede operar un Int con un Double sin convertirlos. Convierte uno de los dos, por ejemplo: Double(entero) o Int(decimal).
+Error semántico en la línea 59: la función 'redondear' debe devolver Int, pero el return devuelve Double. Devuelve un valor de tipo Int o cambia el tipo de retorno de la función.
+Error semántico en la línea 64: la función 'convertir' debe devolver Double, pero el return devuelve Int. Devuelve un valor de tipo Double o cambia el tipo de retorno de la función.
+Error semántico en la línea 69: la función 'aprobado' debe devolver Bool, pero el return devuelve String. Devuelve un valor de tipo Bool o cambia el tipo de retorno de la función.

@@ -25,6 +25,7 @@ errores = []
 tabla_simbolos = {
     'variables': {},
     'constantes': set(),    # nombres declarados con let (regla 2)
+    'funciones': {},        # tipo de retorno de cada función (reglas 5 y 6)
 }
  
 # Lista de errores semánticos encontrados (se escribe en el log)
@@ -54,7 +55,9 @@ def buscar_variable(nombre, linea):
             f"se usa antes de declararse. Declárala antes con var o let, "
             f"por ejemplo: var {nombre} = 0.")
         return None
-    return tabla_simbolos['variables'][nombre]
+    tipo = tabla_simbolos['variables'][nombre]
+    # Una variable ya no es un número literal: var x = 5 guarda Int (regla 5)
+    return str(tipo) if tipo is not None else None
 
 
 # Sentencias del aporte de Pablo
@@ -119,6 +122,10 @@ def p_if_else(p):
 # Función con retorno: func sumar(a: Int, b: Int) -> Int { ... }
 def p_funcion(p):
     'funcion : FUNC ID LPAREN parametros RPAREN ARROW tipo LBRACE programa RBRACE'
+    # Semántico (reglas de Jack): se guarda el tipo de retorno de la función
+    # y se revisan los return que quedaron dentro de su cuerpo
+    tabla_simbolos['funciones'][p[2]] = p[7]
+    revisar_retornos(p[2], p[7], p.lexpos(1), p.lexpos(10))
 
 
 # Lista de parámetros separados por comas
@@ -148,6 +155,8 @@ def p_tipo(p):
 # Sentencia return con su valor
 def p_retorno(p):
     'retorno : RETURN expresion'
+    # Regla semántica 6 (Jack): se guarda hasta saber en qué función está
+    registrar_retorno(p[2], p.lineno(1), p.lexpos(1))
 
 
 # Condición simple: compara dos expresiones
@@ -181,10 +190,9 @@ def p_expresion(p):
         p[0] = p[1]                 # valor
     elif p[1] == '(':
         p[0] = p[2]                 # (expresion)
-    elif p[1] == p[3]:
-        p[0] = p[1]                 # Int + Int da Int
     else:
-        p[0] = None                 # tipos distintos: tipo desconocido
+        # Regla semántica 5 (Jack): Int y Double no se mezclan sin convertir
+        p[0] = revisar_conversion(p[1], p[3], p.lineno(2))
 
 
 # Valores que pueden formar una expresión
@@ -198,7 +206,7 @@ def p_valor(p):
     # Semántico: devuelve el tipo del valor
     token = p.slice[1].type
     if token == 'INT':
-        p[0] = 'Int'
+        p[0] = TipoLiteral('Int')   # número escrito directamente (regla 5)
     elif token == 'DOUBLE':
         p[0] = 'Double'
     elif token == 'ID':
@@ -239,6 +247,9 @@ def p_acceso(p):
 def p_llamada(p):
     '''llamada : ID LPAREN RPAREN
                | ID LPAREN argumentos RPAREN'''
+    # Semántico (regla 5 de Jack): Double(x) da Double, Int(x) da Int y una
+    # función ya declarada da su tipo de retorno
+    p[0] = tipo_de_llamada(p[1])
 
 
 # Argumentos de la llamada separados por comas
@@ -482,6 +493,11 @@ def p_valor_jack(p):
              | NIL
              | tupla
              | lectura'''
+    # Semántico: true y false son Bool; nil, tuplas y readLine() no se validan
+    if p.slice[1].type in ('TRUE', 'FALSE'):
+        p[0] = 'Bool'
+    else:
+        p[0] = None
 
 
 # Tupla de dos o más valores, que pueden ser de distinto tipo: (3, 4), ("Ana", 20)
@@ -492,6 +508,81 @@ def p_tupla(p):
 # Lectura de un dato ingresado por teclado: readLine()
 def p_lectura(p):
     'lectura : READLINE LPAREN RPAREN'
+
+
+# ----- Reglas semánticas de Jack Vera -----
+# Regla 5: para operar un Int con un Double se debe convertir uno de ellos
+# Regla 6: el valor de return debe coincidir con el tipo de retorno
+
+# Tipo de un número entero escrito directamente, como 5 o 10. Se compara
+# igual que 'Int', pero Swift lo adapta a Double si se opera con un Double:
+# precio * 2 es válido, pero cantidad * precio no.
+class TipoLiteral(str):
+    pass
+
+
+# Regla semántica 5: revisa una operación aritmética y devuelve su tipo
+def revisar_conversion(izquierda, derecha, linea):
+    # Si no se conoce el tipo de uno de los lados, no se puede validar
+    if izquierda is None or derecha is None:
+        return None
+    if izquierda == derecha:
+        # Solo sigue siendo literal si los dos lados lo son: 2 + 3
+        if isinstance(izquierda, TipoLiteral) and isinstance(derecha, TipoLiteral):
+            return izquierda
+        return str(izquierda)
+    if {izquierda, derecha} == {'Int', 'Double'}:
+        # Un número entero escrito directamente se adapta a Double
+        if isinstance(izquierda, TipoLiteral) or isinstance(derecha, TipoLiteral):
+            return 'Double'
+        errores_semanticos.append(
+            f"Error semántico en la línea {linea}: no se puede operar un Int "
+            f"con un Double sin convertirlos. Convierte uno de los dos, por "
+            f"ejemplo: Double(entero) o Int(decimal).")
+    return None
+
+
+# Regla semántica 5: Double(x) e Int(x) son conversiones explícitas.
+# Una función ya declarada devuelve su tipo de retorno.
+def tipo_de_llamada(nombre):
+    if nombre in ('Int', 'Double', 'String'):
+        return nombre
+    return tabla_simbolos['funciones'].get(nombre)
+
+
+# Regla semántica 6: return encontrados que aún no se revisan. Cada uno se
+# guarda con su tipo, su línea y su posición, igual que break y continue.
+retornos_pendientes = []
+
+
+def registrar_retorno(tipo, linea, posicion):
+    retornos_pendientes.append({'tipo': tipo, 'linea': linea,
+                                'posicion': posicion})
+
+
+# Al cerrar una función con retorno se revisan los return que están entre
+# la palabra func y la llave que cierra la función
+def revisar_retornos(nombre, tipo_funcion, inicio, fin):
+    for retorno in retornos_pendientes[:]:
+        if inicio < retorno['posicion'] < fin:
+            retornos_pendientes.remove(retorno)
+            if not retorno_compatible(tipo_funcion, retorno['tipo']):
+                errores_semanticos.append(
+                    f"Error semántico en la línea {retorno['linea']}: la "
+                    f"función '{nombre}' debe devolver {tipo_funcion}, pero el "
+                    f"return devuelve {retorno['tipo']}. Devuelve un valor de "
+                    f"tipo {tipo_funcion} o cambia el tipo de retorno de la "
+                    f"función.")
+
+
+def retorno_compatible(tipo_funcion, tipo_valor):
+    # Si no se conoce el tipo del valor, no se puede validar
+    if tipo_valor is None:
+        return True
+    # Un número entero escrito directamente sirve para una función Double
+    if tipo_funcion == 'Double' and isinstance(tipo_valor, TipoLiteral):
+        return True
+    return tipo_funcion == tipo_valor
 
 # ===== Fin aporte Jack Vera =====
 
@@ -531,6 +622,8 @@ def _parsear(codigo):
     tabla_simbolos['variables'].clear()
     tabla_simbolos['constantes'].clear()
     controles_pendientes.clear()
+    tabla_simbolos['funciones'].clear()
+    retornos_pendientes.clear()
     analizador_lexico.lexer.lineno = 1
     parser.parse(codigo, lexer=analizador_lexico.lexer)
     verificar_control_ciclo()

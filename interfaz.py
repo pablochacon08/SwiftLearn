@@ -42,6 +42,8 @@ CATEGORIAS = (
     ('constante', 'Identificadores'),
     ('es de tipo', 'Asignación de tipo'),
     ('dentro de un ciclo', 'Estructuras de Control'),
+    ('sin convertirlos', 'Conversión'),
+    ('debe devolver', 'Retorno de funciones'),
 )
 
 AVISO_SINTACTICO = ('Hay errores sintácticos; corrígelos primero, porque '
