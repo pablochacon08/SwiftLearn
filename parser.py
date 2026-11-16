@@ -283,7 +283,7 @@ def p_sentencia_danna(p):
 # El valor puede ser una expresión o una condición: var activo: Bool = edad >= 18
 def p_declaracion_tipada(p):
     'declaracion_tipada : VAR ID COLON tipo ASSIGN condicion'
-    # Regla semántica 1: el valor debe coincidir con el tipo declarado
+    # Regla semántica 3: el valor debe coincidir con el tipo declarado
     nombre = p[2]
     tipo_declarado = p[4]
     tipo_valor = p[6]
@@ -297,7 +297,7 @@ def p_declaracion_tipada(p):
     tabla_simbolos['variables'][nombre] = tipo_declarado
  
  
-# Regla semántica 1: compara el tipo declarado con el tipo del valor
+# Regla semántica 3: compara el tipo declarado con el tipo del valor
 def tipos_compatibles(tipo_declarado, tipo_valor):
     # Si no se conoce el tipo del valor, no se puede validar
     if tipo_valor is None:
@@ -321,11 +321,11 @@ def p_tipo_diccionario(p):
 # Estructura de control while: while contador < 10 { contador += 1 }
 def p_ciclo_while(p):
     'ciclo_while : WHILE condicion LBRACE programa RBRACE'
-    # Regla semántica 2: los break/continue de este while son válidos
+    # Regla semántica 4: los break/continue de este while son válidos
     cerrar_ciclo(p.lexpos(1), p.lexpos(5))
  
  
-# Regla semántica 2: break y continue encontrados que aún no están
+# Regla semántica 4: break y continue encontrados que aún no están
 # dentro de un ciclo. Cada uno se guarda con su línea y su posición.
 controles_pendientes = []
  
@@ -351,7 +351,7 @@ def verificar_control_ciclo():
 def p_control_ciclo(p):
     '''control_ciclo : BREAK
                      | CONTINUE'''
-    # Regla semántica 2: se guarda hasta saber si está dentro de un ciclo
+    # Regla semántica 4: se guarda hasta saber si está dentro de un ciclo
     controles_pendientes.append({'palabra': p[1],
                                  'linea': p.lineno(1),
                                  'posicion': p.lexpos(1)})
