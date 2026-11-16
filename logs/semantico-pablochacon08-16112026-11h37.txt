@@ -1,0 +1,7 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: algoritmos/algoritmo1.swift
+Desarrollador: pablochacon08
+Fecha: 16-11-2026 11:37
+
+ERRORES SEMÁNTICOS (0)
+Sin errores semánticos.
