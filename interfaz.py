@@ -44,6 +44,8 @@ CATEGORIAS = (
     ('dentro de un ciclo', 'Estructuras de Control'),
     ('sin convertirlos', 'Conversión'),
     ('debe devolver', 'Retorno de funciones'),
+    ('solo funciona con', 'Operaciones permitidas'),
+    ('solo une dos String', 'Operaciones permitidas'),
 )
 
 AVISO_SINTACTICO = ('Hay errores sintácticos; corrígelos primero, porque '

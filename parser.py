@@ -83,6 +83,12 @@ def p_declaracion(p):
 def p_reasignacion(p):
     'reasignacion : destino operador_asig condicion'
     # La regla 2 se revisa en p_destino
+    # Regla semántica 3 (Danna): con = el valor nuevo debe coincidir con el
+    # tipo de la variable. p[1] trae el nombre, si es un elemento (notas[0])
+    # y la línea
+    nombre, es_elemento, linea = p[1]
+    if p[2] == '=' and nombre not in tabla_simbolos['constantes']:
+        revisar_asignacion(nombre, es_elemento, p[3], linea)
 
 
 # Lo que puede ir a la izquierda: una variable o un elemento del arreglo
@@ -103,6 +109,8 @@ def p_destino(p):
                        f"declara el arreglo con var.")
         errores_semanticos.append(
             f"Error semántico en la línea {p.lineno(1)}: {mensaje}")
+    # Se devuelve el nombre, si es un elemento y la línea, para la regla 3
+    p[0] = (p[1], len(p) == 5, p.lineno(1))
 
 
 # Operadores de asignación
@@ -113,6 +121,7 @@ def p_operador_asig(p):
                      | TIMES_ASSIGN
                      | DIVIDE_ASSIGN
                      | MOD_ASSIGN'''
+    p[0] = p[1]
 
 
 # Estructura de control if, con else opcional
@@ -203,6 +212,9 @@ def p_expresion(p):
         p[0] = p[2]                 # (expresion)
     elif p[1] == '-':
         p[0] = p[2]                 # -expresion: conserva el tipo
+    elif not operacion_permitida(p[2], p[1], p[3], p.lineno(2)):
+        # Operaciones permitidas (sección 5): el operador no sirve con esos tipos
+        p[0] = None
     else:
         # Regla semántica 5 (Jack): Int y Double no se mezclan sin convertir
         p[0] = revisar_conversion(p[1], p[3], p.lineno(2))
@@ -353,6 +365,31 @@ def tipos_compatibles(tipo_declarado, tipo_valor):
     return tipo_declarado == tipo_valor
  
  
+# Regla semántica 3, en las asignaciones posteriores: x = valor.
+# Si es un elemento, se compara con el tipo de los elementos:
+# notas[0] en [Double] es Double y edades["Ana"] en [String: Int] es Int.
+def revisar_asignacion(nombre, es_elemento, tipo_valor, linea):
+    tipo_variable = tabla_simbolos['variables'].get(nombre)
+    if tipo_variable is None:
+        return      # no declarada (regla 1) o de tipo desconocido
+    tipo_variable = str(tipo_variable)
+    if es_elemento:
+        if not tipo_variable.startswith('['):
+            return
+        interior = tipo_variable[1:-1]
+        if ': ' in interior:
+            tipo_variable = interior.split(': ', 1)[1]   # valor del diccionario
+        else:
+            tipo_variable = interior                    # elemento del arreglo
+    if not tipos_compatibles(tipo_variable, tipo_valor):
+        destino = f"un elemento de '{nombre}'" if es_elemento else f"'{nombre}'"
+        errores_semanticos.append(
+            f"Error semántico en la línea {linea}: {destino} es de tipo "
+            f"{tipo_variable}, pero se le asigna un valor de tipo "
+            f"{tipo_valor}. Asigna un valor de tipo {tipo_variable} o "
+            f"declara la variable con otro tipo.")
+
+
 # Tipo diccionario: [String: Int]
 def p_tipo_diccionario(p):
     'tipo : LBRACKET ID COLON ID RBRACKET'
@@ -402,6 +439,8 @@ def p_control_ciclo(p):
 # Función sin retorno con parámetros: func saludar(nombre: String) { ... }
 def p_funcion_sin_retorno(p):
     'funcion_sin_retorno : FUNC ID LPAREN parametros RPAREN LBRACE programa RBRACE'
+    # Regla semántica 6 (Jack): una función sin -> no devuelve ningún valor
+    revisar_retornos_sin_tipo(p[2], p.lexpos(1), p.lexpos(8))
  
  
 # Impresión de uno o varios valores: print("Hola", nombre)
@@ -496,11 +535,18 @@ def p_condicion_logica(p):
     '''condicion : condicion AND condicion
                  | condicion OR condicion
                  | NOT condicion'''
+    # Operaciones permitidas (sección 5): &&, || y ! solo funcionan con Bool
+    if p[1] == '!':
+        revisar_logico('!', [p[2]], p.lineno(1))
+    else:
+        revisar_logico(p[2], [p[1], p[3]], p.lineno(2))
+    p[0] = 'Bool'
 
 
 # Condición dentro de paréntesis: esAdmin || (edad >= 18 && !bloqueado)
 def p_condicion_parentesis(p):
     'condicion : LPAREN condicion RPAREN'
+    p[0] = p[2]
 
 
 # Permite usar una sola variable como condición: if activo { ... }
@@ -526,6 +572,8 @@ def p_variable_for(p):
 # Función que no recibe parámetros: func mostrar() { ... }
 def p_funcion_sin_parametros(p):
     'funcion_sin_parametros : FUNC ID LPAREN RPAREN LBRACE programa RBRACE'
+    # Regla semántica 6: una función sin -> no devuelve ningún valor
+    revisar_retornos_sin_tipo(p[2], p.lexpos(1), p.lexpos(7))
 
 
 # Valores nuevos: true, false, nil, tuplas y readLine()
@@ -617,6 +665,30 @@ def revisar_retornos(nombre, tipo_funcion, inicio, fin):
                     f"función.")
 
 
+# Regla semántica 6: en una función sin -> todo return con valor es error
+def revisar_retornos_sin_tipo(nombre, inicio, fin):
+    for retorno in retornos_pendientes[:]:
+        if inicio < retorno['posicion'] < fin:
+            retornos_pendientes.remove(retorno)
+            errores_semanticos.append(
+                f"Error semántico en la línea {retorno['linea']}: la "
+                f"función '{nombre}' no indica un tipo de retorno con ->, "
+                f"así que no debe devolver ningún valor. Quita el return o "
+                f"agrega el tipo, por ejemplo: func {nombre}() -> Int {{ ... }}.")
+
+
+# Operaciones permitidas (sección 5): &&, || y ! solo funcionan con Bool
+def revisar_logico(operador, tipos, linea):
+    for tipo in tipos:
+        if tipo is not None and str(tipo) != 'Bool':
+            errores_semanticos.append(
+                f"Error semántico en la línea {linea}: el operador "
+                f"{operador} solo funciona con valores Bool, pero se usó con "
+                f"un valor {tipo}. Usa una comparación o un valor Bool, por "
+                f"ejemplo: edad >= 18 && activo.")
+            return
+
+
 def retorno_compatible(tipo_funcion, tipo_valor):
     # Si no se conoce el tipo del valor, no se puede validar
     if tipo_valor is None:
@@ -630,6 +702,37 @@ def retorno_compatible(tipo_funcion, tipo_valor):
 
 
 # ===== Base común del analizador =====
+
+# Operaciones permitidas (sección 5):
+#   + - * / solo con números (+ también une dos String)
+#   % solo con Int
+# Devuelve False y guarda el error si el operador no sirve con esos tipos.
+def operacion_permitida(operador, izquierda, derecha, linea):
+    if izquierda is None or derecha is None:
+        return True     # si no se conoce un tipo, no se puede validar
+    izquierda, derecha = str(izquierda), str(derecha)
+    numeros = ('Int', 'Double')
+    if operador == '%':
+        if izquierda == 'Int' and derecha == 'Int':
+            return True
+        explicacion = "el operador % (residuo) solo funciona con Int"
+        ejemplo = "var residuo = 7 % 2"
+    elif operador == '+' and izquierda == 'String' and derecha == 'String':
+        return True
+    elif izquierda in numeros and derecha in numeros:
+        return True     # Int con Double lo revisa la regla 5
+    elif operador == '+' and 'String' in (izquierda, derecha):
+        explicacion = "el operador + solo une dos String"
+        ejemplo = 'var saludo = "Hola " + nombre, o convierte con String(numero)'
+    else:
+        explicacion = f"el operador {operador} solo funciona con números"
+        ejemplo = "var total = a + b"
+    errores_semanticos.append(
+        f"Error semántico en la línea {linea}: {explicacion}, pero se usó con "
+        f"{izquierda} y {derecha}. Usa valores del tipo correcto, por "
+        f"ejemplo: {ejemplo}.")
+    return False
+
 
 # Regla padre: un programa es una o varias sentencias.
 # Cada integrante agrega sus sentencias con su propia función p_sentencia_...
