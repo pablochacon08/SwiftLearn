@@ -43,6 +43,7 @@ errores_semanticos = []
 precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE', 'MOD'),
+    ('right', 'UMINUS'),    # menos unario: -x (Tabla 9, nivel 2)
 )
 
 
@@ -67,7 +68,8 @@ def p_sentencia_pablo(p):
                  | funcion
                  | retorno
                  | reasignacion
-                 | llamada'''
+                 | llamada
+                 | acceso'''
 
 
 # Declaración de variable: var total = 5 + 3
@@ -120,12 +122,20 @@ def p_if_else(p):
 
 
 # Función con retorno: func sumar(a: Int, b: Int) -> Int { ... }
+# También sin parámetros: func obtenerTotal() -> Int { ... }
 def p_funcion(p):
-    'funcion : FUNC ID LPAREN parametros RPAREN ARROW tipo LBRACE programa RBRACE'
+    '''funcion : FUNC ID LPAREN parametros RPAREN ARROW tipo LBRACE programa RBRACE
+               | FUNC ID LPAREN RPAREN ARROW tipo LBRACE programa RBRACE'''
+    # Sin parámetros la regla tiene un símbolo menos, así que el tipo
+    # está en p[6] en lugar de p[7]
+    if len(p) == 11:
+        tipo = p[7]
+    else:
+        tipo = p[6]
     # Semántico (reglas de Jack): se guarda el tipo de retorno de la función
     # y se revisan los return que quedaron dentro de su cuerpo
-    tabla_simbolos['funciones'][p[2]] = p[7]
-    revisar_retornos(p[2], p[7], p.lexpos(1), p.lexpos(10))
+    tabla_simbolos['funciones'][p[2]] = tipo
+    revisar_retornos(p[2], tipo, p.lexpos(1), p.lexpos(len(p) - 1))
 
 
 # Lista de parámetros separados por comas
@@ -184,12 +194,15 @@ def p_expresion(p):
                  | expresion DIVIDE expresion
                  | expresion MOD expresion
                  | LPAREN expresion RPAREN
+                 | MINUS expresion %prec UMINUS
                  | valor'''
     # Semántico: devuelve el tipo de la expresión
     if len(p) == 2:
         p[0] = p[1]                 # valor
     elif p[1] == '(':
         p[0] = p[2]                 # (expresion)
+    elif p[1] == '-':
+        p[0] = p[2]                 # -expresion: conserva el tipo
     else:
         # Regla semántica 5 (Jack): Int y Double no se mezclan sin convertir
         p[0] = revisar_conversion(p[1], p[3], p.lineno(2))
