@@ -28,7 +28,7 @@ En Ubuntu / WSL, Tkinter se instala aparte:
 sudo apt install python3-tk
 ```
 
-> **WSL:** para que se abra la ventana de la interfaz se necesita Windows 11, que incluye WSLg (soporte de aplicaciones gráficas de Linux). En Windows 10 la interfaz no se puede mostrar desde WSL.
+> **WSL:** la ventana de la interfaz se muestra con WSLg (soporte de aplicaciones gráficas de Linux), incluido en Windows 11 y en Windows 10 versión 21H2 o superior. Para tenerlo al día, ejecutar `wsl --update` en PowerShell. Si la ventana aparece en la barra de tareas pero no se muestra, ejecutar `wsl --shutdown` en PowerShell, volver a abrir Ubuntu y abrir otra vez la interfaz.
 
 **macOS:** se recomienda instalar Python desde [python.org](https://www.python.org/downloads/), que ya incluye Tkinter. Si usas Homebrew, instala también Tkinter con `brew install python-tk`. Luego, desde la carpeta del proyecto:
 
@@ -46,7 +46,7 @@ python3 interfaz.py
 ```
 
 1. Elige el **Usuario** (integrante) en la esquina superior derecha. Se usa para el nombre de los logs.
-2. Escribe código Swift en el editor o presiona **Abrir** para cargar un archivo `.swift` (se abre en `algoritmos/`).
+2. Escribe o pega código Swift en el editor, o presiona **Abrir** para cargar un archivo `.swift` (se abre en `algoritmos/`). Al pegar código copiado desde Windows, un chat o un PDF, la interfaz quita los caracteres invisibles (como el `\r` de los saltos de línea de Windows) para que no aparezcan como errores léxicos.
 3. Presiona **Análisis léxico**, **Análisis sintáctico** o **Análisis semántico**. Cada análisis se ejecuta por separado y genera solo su log.
 4. Revisa los resultados:
    - **Tokens**: tabla con la línea, el tipo y el valor de cada token (análisis léxico).
@@ -107,3 +107,4 @@ Cada log incluye el archivo analizado, el desarrollador, la fecha y hora y los e
 - [x] Avance 2: Analizador sintáctico (PLY yacc)
 - [x] Avance 3: Analizador semántico
 - [x] Interfaz gráfica (Tkinter)
+- [x] Avance final: proyecto completo (3 análisis, interfaz, algoritmos de prueba y logs)

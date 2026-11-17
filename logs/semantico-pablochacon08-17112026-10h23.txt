@@ -1,0 +1,18 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: (editor)
+Desarrollador: pablochacon08
+Fecha: 17-11-2026 10:23
+
+ERRORES SEMÁNTICOS (12)
+Error semántico en la línea 2: la variable 'promedio' se usa antes de declararse. Declárala antes con var o let, por ejemplo: var promedio = 0.
+Error semántico en la línea 4: 'pi' es una constante (let) y no se puede cambiar su valor. Si necesitas modificarla, declárala con var en lugar de let.
+Error semántico en la línea 5: el arreglo mezcla elementos Int y String, y en Swift todos los elementos de un arreglo deben ser del mismo tipo. Usa un solo tipo en el arreglo, por ejemplo: [1, 2, 3] o ["Ana", "Luis"].
+Error semántico en la línea 6: la variable 'edad' es de tipo Int, pero se le asigna un valor de tipo String. Asigna un valor de tipo Int o cambia el tipo de la variable.
+Error semántico en la línea 8: 'numero' es de tipo Int, pero se le asigna un valor de tipo String. Asigna un valor de tipo Int o declara la variable con otro tipo.
+Error semántico en la línea 14: no se puede operar un Int con un Double sin convertirlos. Convierte uno de los dos, por ejemplo: Double(entero) o Int(decimal).
+Error semántico en la línea 16: la función 'redondear' debe devolver Int, pero el return devuelve Double. Devuelve un valor de tipo Int o cambia el tipo de retorno de la función.
+Error semántico en la línea 19: la función 'saludar' no indica un tipo de retorno con ->, así que no debe devolver ningún valor. Quita el return o agrega el tipo, por ejemplo: func saludar() -> Int { ... }.
+Error semántico en la línea 21: el operador % (residuo) solo funciona con Int, pero se usó con Double y Double. Usa valores del tipo correcto, por ejemplo: var residuo = 7 % 2.
+Error semántico en la línea 22: el operador + solo une dos String, pero se usó con String y Int. Usa valores del tipo correcto, por ejemplo: var saludo = "Hola " + nombre, o convierte con String(numero).
+Error semántico en la línea 23: el operador && solo funciona con valores Bool, pero se usó con un valor Int. Usa una comparación o un valor Bool, por ejemplo: edad >= 18 && activo.
+Error semántico en la línea 10: 'break' solo puede usarse dentro de un ciclo while o for. Muévelo dentro de un ciclo o elimínalo.
