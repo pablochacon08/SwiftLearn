@@ -109,6 +109,20 @@ def categoria_de(mensaje):
     return None
 
 
+# Al copiar código desde un chat, WhatsApp o un PDF, a veces los espacios se
+# pegan como caracteres especiales invisibles (por ejemplo el espacio duro).
+# Se cambian por espacios normales para que no salgan como errores léxicos.
+ESPACIOS_ESPECIALES = str.maketrans({
+    '\u00a0': ' ',     # espacio duro (no-break space)
+    '\u2007': ' ',     # espacio de cifra
+    '\u202f': ' ',     # espacio duro angosto
+    '\u2009': ' ',     # espacio fino
+    '\u200b': None,    # espacio de ancho cero
+    '\ufeff': None,    # marca de orden de bytes
+    '\r': None,        # salto de línea de Windows (\r\n): se deja solo \n
+})
+
+
 def plural_errores(cantidad):
     return f"{cantidad} error" if cantidad == 1 else f"{cantidad} errores"
 
@@ -318,7 +332,25 @@ class SwiftLearnApp:
 
         self.editor.bind('<<Modified>>', self._al_modificar)
         self.editor.bind('<Configure>', lambda e: self.redibujar_numeros())
+        # Al pegar (Ctrl+V) se limpian los caracteres invisibles
+        self.editor.bind('<<Paste>>', self._pegar)
         return marco
+
+    def _pegar(self, _evento=None):
+        """Pega el texto del portapapeles sin los caracteres invisibles
+        (\\r de Windows, espacio duro, etc.)."""
+        try:
+            texto = self.editor.clipboard_get()
+        except tk.TclError:
+            return 'break'                      # portapapeles vacío
+        texto = texto.translate(ESPACIOS_ESPECIALES)
+        try:
+            self.editor.delete('sel.first', 'sel.last')   # reemplaza lo seleccionado
+        except tk.TclError:
+            pass                                # no había nada seleccionado
+        self.editor.insert('insert', texto)
+        self.editor.see('insert')
+        return 'break'                          # evita el pegado normal
 
     def _scroll_editor(self, *args):
         self.editor.yview(*args)
@@ -590,6 +622,15 @@ class SwiftLearnApp:
     def analizar(self, fase):
         """Ejecuta una sola fase sobre el texto del editor."""
         codigo = self.editor.get('1.0', 'end-1c')
+        limpio = codigo.translate(ESPACIOS_ESPECIALES)
+        if limpio != codigo:
+            # Se corrige también el editor, para que líneas y columnas coincidan
+            cursor = self.editor.index('insert')
+            self.editor.delete('1.0', 'end')
+            self.editor.insert('1.0', limpio)
+            self.editor.mark_set('insert', cursor)
+            self.redibujar_numeros()
+            codigo = limpio
         if not codigo.strip():
             messagebox.showwarning(
                 'Editor vacío',
