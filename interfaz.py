@@ -46,6 +46,7 @@ CATEGORIAS = (
     ('debe devolver', 'Retorno de funciones'),
     ('solo funciona con', 'Operaciones permitidas'),
     ('solo une dos String', 'Operaciones permitidas'),
+    ('deben ser del mismo tipo', 'Asignación de tipo'),
 )
 
 AVISO_SINTACTICO = ('Hay errores sintácticos; corrígelos primero, porque '
@@ -528,7 +529,9 @@ class SwiftLearnApp:
             self._tarjeta((COLOR['error_fondo'], COLOR['error_borde'],
                            COLOR['error_texto']),
                           f'Error {fase} · {lugar}', '⚠',
-                          explicacion, sugerencia, categoria_de(mensaje),
+                          explicacion, sugerencia,
+                          # La categoría es de las reglas semánticas (sección 5)
+                          categoria_de(mensaje) if fase == 'semántico' else None,
                           linea, clic=True)
 
     # ---------------------------------------------------------------
