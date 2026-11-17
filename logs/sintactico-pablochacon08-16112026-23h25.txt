@@ -1,0 +1,9 @@
+ANÁLISIS SINTÁCTICO - SwiftLearn
+Archivo: algoritmos/algoritmo1_sintactico.swift
+Desarrollador: pablochacon08
+Fecha: 16-11-2026 23:25
+
+ERRORES SINTÁCTICOS (3)
+Error sintáctico en la línea 64: después de 'var' se esperaba el nombre de la variable, pero se encontró el signo =. Ejemplo correcto: var edad = 5.
+Error sintáctico en la línea 67: después de la coma se esperaba otro elemento, pero se encontró el corchete ]. Ejemplo correcto: [1, 2, 3].
+Error sintáctico en la línea 73: después de 'else' se esperaba la llave { para abrir el bloque, pero se encontró 'var'. Ejemplo correcto: } else { ... }.

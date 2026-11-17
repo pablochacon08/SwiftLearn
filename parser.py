@@ -609,16 +609,128 @@ def p_programa(p):
                 | programa sentencia'''
 
 
-# Error sintáctico: se guarda el mensaje y se continúa con el análisis
+# ----- Mensajes de error sintáctico -----
+# PLY solo le pasa a p_error el token que no esperaba. Para explicar qué
+# faltaba, se guarda también el token anterior mientras el parser lee.
+# También se guarda la línea del último comparador, para reconocer una
+# comparación encadenada como 0 < x < 10.
+tokens_leidos = {'anterior': None, 'actual': None, 'linea_comparador': None}
+
+
+def siguiente_token():
+    tok = analizador_lexico.lexer.token()
+    actual = tokens_leidos['actual']
+    if actual and actual.type in COMPARADORES:
+        tokens_leidos['linea_comparador'] = actual.lineno
+    tokens_leidos['anterior'] = actual
+    tokens_leidos['actual'] = tok
+    return tok
+
+
+# Nombre de algunos tokens para que el mensaje se entienda mejor
+NOMBRES_TOKEN = {
+    'ASSIGN': 'el signo =', 'LBRACE': 'la llave {', 'RBRACE': 'la llave }',
+    'LPAREN': 'el paréntesis (', 'RPAREN': 'el paréntesis )',
+    'LBRACKET': 'el corchete [', 'RBRACKET': 'el corchete ]',
+    'COMMA': 'la coma', 'COLON': 'los dos puntos', 'ARROW': 'la flecha ->',
+    'ID': 'el identificador', 'INT': 'el número', 'DOUBLE': 'el número',
+    'STRING': 'la cadena',
+}
+
+
+# Texto que va después de "después de", para escribir "del" y no "de el"
+def despues_de(tok):
+    texto = describir(tok)
+    if texto.startswith('el '):
+        return 'del ' + texto[3:]
+    return 'de ' + texto
+
+
+def describir(tok):
+    nombre = NOMBRES_TOKEN.get(tok.type)
+    if nombre in ('el identificador', 'el número', 'la cadena'):
+        return f"{nombre} {tok.value}"
+    if nombre:
+        return nombre
+    return f"'{tok.value}'"
+
+
+# Qué se esperaba después de cada token, y un ejemplo correcto
+ESPERADO = {
+    'VAR': ('el nombre de la variable', 'var edad = 5'),
+    'LET': ('el nombre de la constante', 'let pi = 3.14'),
+    'FUNC': ('el nombre de la función', 'func sumar(a: Int, b: Int) -> Int { return a + b }'),
+    'ASSIGN': ('un valor o una expresión', 'var total = a + b'),
+    'PLUS_ASSIGN': ('un valor', 'contador += 1'),
+    'MINUS_ASSIGN': ('un valor', 'contador -= 1'),
+    'TIMES_ASSIGN': ('un valor', 'total *= 2'),
+    'DIVIDE_ASSIGN': ('un valor', 'total /= 2'),
+    'MOD_ASSIGN': ('un valor', 'total %= 2'),
+    'PLUS': ('otro valor para completar la operación', 'total = a + b'),
+    'MINUS': ('otro valor para completar la operación', 'total = a - b'),
+    'TIMES': ('otro valor para completar la operación', 'total = a * b'),
+    'DIVIDE': ('otro valor para completar la operación', 'total = a / b'),
+    'MOD': ('otro valor para completar la operación', 'residuo = a % 2'),
+    'EQ': ('un valor para comparar', 'if nota == 10 { ... }'),
+    'NE': ('un valor para comparar', 'if nota != 0 { ... }'),
+    'LT': ('un valor para comparar', 'if edad < 18 { ... }'),
+    'GT': ('un valor para comparar', 'if edad > 18 { ... }'),
+    'LE': ('un valor para comparar', 'if edad <= 18 { ... }'),
+    'GE': ('un valor para comparar', 'if edad >= 18 { ... }'),
+    'AND': ('otra condición', 'edad >= 18 && activo'),
+    'OR': ('otra condición', 'esAdmin || activo'),
+    'NOT': ('una condición', '!bloqueado'),
+    'IF': ('una condición', 'if edad >= 18 { ... }'),
+    'WHILE': ('una condición', 'while contador < 10 { ... }'),
+    'ELSE': ('la llave { para abrir el bloque', '} else { ... }'),
+    'FOR': ('la variable del ciclo', 'for nota in notas { ... }'),
+    'IN': ('la colección que se recorre', 'for nota in notas { ... }'),
+    'RETURN': ('el valor que devuelve la función', 'return total'),
+    'ARROW': ('el tipo de retorno', 'func sumar(a: Int, b: Int) -> Int { ... }'),
+    'COLON': ('un tipo o un valor', 'var edad: Int = 20'),
+    'COMMA': ('otro elemento', '[1, 2, 3]'),
+    'LBRACKET': ('un elemento', '[1, 2, 3]'),
+}
+
+COMPARADORES = ('EQ', 'NE', 'LT', 'GT', 'LE', 'GE')
+
+
+# Error sintáctico: se guarda el mensaje y se continúa con el análisis.
+# PLY distingue dos casos: un token inesperado (p tiene el token) y el
+# final del archivo cuando la instrucción quedó incompleta (p es None).
 def p_error(p):
-    if p:
-        errores.append(f"Error sintáctico en la línea {p.lineno}: "
-                       f"no se esperaba '{p.value}'. Revisa la instrucción "
-                       f"antes de este símbolo.")
+    anterior = tokens_leidos['anterior']
+    if not p:
+        fin = f" después {despues_de(anterior)}" if anterior else ""
+        errores.append(f"Error sintáctico al final del archivo: la última "
+                       f"instrucción quedó incompleta{fin}. Revisa que no "
+                       f"falte una llave }}, un paréntesis ) o un valor.")
+        return
+
+    encontrado = describir(p)
+    if anterior and anterior.type in ESPERADO:
+        esperado, ejemplo = ESPERADO[anterior.type]
+        mensaje = (f"después {despues_de(anterior)} se esperaba {esperado}, "
+                   f"pero se encontró {encontrado}. Ejemplo correcto: {ejemplo}")
+    elif (p.type in COMPARADORES
+          and tokens_leidos['linea_comparador'] == p.lineno):
+        mensaje = (f"no se esperaba {encontrado}: las comparaciones no se "
+                   f"pueden encadenar. Únelas con &&, por ejemplo: "
+                   f"0 < x && x < 10")
+    elif anterior and anterior.type == 'RPAREN' and p.type == 'ID':
+        mensaje = (f"después {despues_de(anterior)} se esperaba -> con el "
+                   f"tipo de retorno o la llave {{, pero se encontró "
+                   f"{encontrado}. Ejemplo correcto: func sumar(a: Int, "
+                   f"b: Int) -> Int {{ ... }}")
+    elif anterior and anterior.type == 'LBRACE' and p.type == 'RBRACE':
+        mensaje = ("el bloque está vacío: entre { y } debe haber al menos "
+                   "una instrucción. Agrega una instrucción, por ejemplo: "
+                   "if x > 0 { x = 1 }")
     else:
-        errores.append("Error sintáctico al final del archivo: la última "
-                       "instrucción está incompleta. Revisa que no falte "
-                       "una llave, un paréntesis o un valor.")
+        mensaje = (f"no se esperaba {encontrado}. Revisa la instrucción antes "
+                   f"de este símbolo: puede faltar un valor, un operador o "
+                   f"una llave")
+    errores.append(f"Error sintáctico en la línea {p.lineno}: {mensaje}.")
 
 
 # La regla padre es programa, aunque los aportes estén escritos antes
@@ -638,7 +750,10 @@ def _parsear(codigo):
     tabla_simbolos['funciones'].clear()
     retornos_pendientes.clear()
     analizador_lexico.lexer.lineno = 1
-    parser.parse(codigo, lexer=analizador_lexico.lexer)
+    tokens_leidos['anterior'] = tokens_leidos['actual'] = None
+    tokens_leidos['linea_comparador'] = None
+    parser.parse(codigo, lexer=analizador_lexico.lexer,
+                 tokenfunc=siguiente_token)
     verificar_control_ciclo()
 
 
