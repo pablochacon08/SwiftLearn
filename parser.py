@@ -359,6 +359,9 @@ def tipos_compatibles(tipo_declarado, tipo_valor):
     # Un diccionario vacío [:] sirve para cualquier tipo de diccionario
     if tipo_valor == 'DiccionarioVacio':
         return tipo_declarado.startswith('[') and ':' in tipo_declarado
+    # Un opcional acepta un valor de su tipo: var apodo: String? = "Ana"
+    if tipo_declarado.endswith('?'):
+        tipo_declarado = tipo_declarado[:-1]
     # Un número entero también se acepta como Double: var x: Double = 5
     if tipo_declarado == 'Double' and tipo_valor == 'Int':
         return True
@@ -569,6 +572,12 @@ def p_variable_for(p):
     tabla_simbolos['variables'][p[1]] = None
 
 
+# Tipo opcional: puede guardar un valor o nil. var apodo: String? = nil
+def p_tipo_opcional(p):
+    'tipo : ID QUESTION'
+    p[0] = f"{p[1]}?"
+
+
 # Función que no recibe parámetros: func mostrar() { ... }
 def p_funcion_sin_parametros(p):
     'funcion_sin_parametros : FUNC ID LPAREN RPAREN LBRACE programa RBRACE'
@@ -737,8 +746,13 @@ def operacion_permitida(operador, izquierda, derecha, linea):
 # Regla padre: un programa es una o varias sentencias.
 # Cada integrante agrega sus sentencias con su propia función p_sentencia_...
 def p_programa(p):
-    '''programa : sentencia
-                | programa sentencia'''
+    '''programa : programa sentencia
+                | vacio'''
+
+
+# Un bloque puede estar vacío, como en los ejemplos del informe: if x > 0 { }
+def p_vacio(p):
+    'vacio :'
 
 
 # ----- Mensajes de error sintáctico -----
@@ -854,10 +868,6 @@ def p_error(p):
                    f"tipo de retorno o la llave {{, pero se encontró "
                    f"{encontrado}. Ejemplo correcto: func sumar(a: Int, "
                    f"b: Int) -> Int {{ ... }}")
-    elif anterior and anterior.type == 'LBRACE' and p.type == 'RBRACE':
-        mensaje = ("el bloque está vacío: entre { y } debe haber al menos "
-                   "una instrucción. Agrega una instrucción, por ejemplo: "
-                   "if x > 0 { x = 1 }")
     else:
         mensaje = (f"no se esperaba {encontrado}. Revisa la instrucción antes "
                    f"de este símbolo: puede faltar un valor, un operador o "

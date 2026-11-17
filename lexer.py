@@ -182,6 +182,7 @@ tokens += [
     'AND',       # &&
     'OR',        # ||
     'NOT',       # !
+    'QUESTION',  # ? del tipo opcional: String?
 ]
 
 # Operadores de asignación compuesta, primero los más largos
@@ -198,6 +199,9 @@ t_ASSIGN = r'='
 t_AND = r'&&'
 t_OR = r'\|\|'
 t_NOT = r'!'
+
+# Signo del tipo opcional: var apodo: String? = nil
+t_QUESTION = r'\?'
 
 # Separadores
 t_LPAREN = r'\('
@@ -302,4 +306,3 @@ if __name__ == '__main__':
         print("Uso: python lexer.py <ruta_algoritmo.swift> <NombreApellido>")
         sys.exit(1)
     analizar(sys.argv[1], sys.argv[2])
-    
