@@ -232,16 +232,45 @@ def p_valor(p):
 # Arreglo: [8.5, 9.0, 6.5]
 def p_arreglo(p):
     'arreglo : LBRACKET elementos RBRACKET'
-    # Semántico: el tipo se toma del primer elemento, por ejemplo [Double]
-    p[0] = f"[{p[2]}]" if p[2] else None
+    # Semántico: todos los elementos deben ser del mismo tipo (Tabla 4)
+    p[0] = tipo_del_arreglo(p[2], p.lineno(1))
 
 
-# Elementos del arreglo separados por comas
+# Elementos separados por comas. Se devuelve la lista con el tipo de cada
+# elemento, para revisar que en un arreglo todos sean del mismo tipo
 def p_elementos(p):
     '''elementos : expresion
                  | elementos COMMA expresion'''
-    # Semántico: se conserva el tipo del primer elemento
-    p[0] = p[1]
+    if len(p) == 2:
+        p[0] = [p[1]]
+    else:
+        p[0] = p[1] + [p[3]]
+
+
+# Devuelve el tipo del arreglo, por ejemplo [Double], o None si no se sabe.
+# Si los elementos son de distinto tipo, guarda el error.
+def tipo_del_arreglo(tipos, linea):
+    # Los elementos cuyo tipo no se conoce no se pueden comparar
+    conocidos = [t for t in tipos if t is not None]
+    if not conocidos:
+        return None
+    distintos = []
+    for t in conocidos:
+        if str(t) not in distintos:
+            distintos.append(str(t))
+    if len(distintos) == 1:
+        return f"[{distintos[0]}]"
+    # Un entero escrito directamente se adapta a Double: [1, 2.5] es [Double]
+    if set(distintos) == {'Int', 'Double'}:
+        enteros = [t for t in conocidos if t == 'Int']
+        if all(isinstance(t, TipoLiteral) for t in enteros):
+            return "[Double]"
+    errores_semanticos.append(
+        f"Error semántico en la línea {linea}: el arreglo mezcla elementos "
+        f"{' y '.join(distintos)}, y en Swift todos los elementos de un "
+        f"arreglo deben ser del mismo tipo. Usa un solo tipo en el arreglo, "
+        f"por ejemplo: [1, 2, 3] o [\"Ana\", \"Luis\"].")
+    return None
 
 
 # Acceso a un elemento del arreglo: notas[0]
