@@ -1,0 +1,7 @@
+ANÁLISIS SEMÁNTICO - SwiftLearn
+Archivo: algoritmos/ejemplos_pablo.swift
+Desarrollador: pablochacon08
+Fecha: 17-11-2026 22:50
+
+ERRORES SEMÁNTICOS (0)
+Sin errores semánticos.
