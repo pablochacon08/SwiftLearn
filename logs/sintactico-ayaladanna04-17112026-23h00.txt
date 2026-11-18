@@ -1,0 +1,10 @@
+ANÁLISIS SINTÁCTICO - SwiftLearn
+Archivo: algoritmos\algoritmo2_sintactico.swift
+Desarrollador: ayaladanna04
+Fecha: 17-11-2026 23:00
+
+ERRORES SINTÁCTICOS (4)
+Error sintáctico en la línea 49: después de los dos puntos se esperaba un tipo o un valor, pero se encontró el signo =. Ejemplo correcto: var edad: Int = 20.
+Error sintáctico en la línea 53: no se esperaba el número 2. Revisa la instrucción antes de este símbolo: puede faltar un valor, un operador o una llave.
+Error sintáctico en la línea 57: no se esperaba la cadena "Adiós". Revisa la instrucción antes de este símbolo: puede faltar un valor, un operador o una llave.
+Error sintáctico en la línea 62: no se esperaba el identificador contador. Revisa la instrucción antes de este símbolo: puede faltar un valor, un operador o una llave.
